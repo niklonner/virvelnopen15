@@ -1,0 +1,55 @@
+body
+{
+    margin-top:100px;
+    background-color:#EEEEFF;
+    overflow-y:scroll;
+}
+
+.footer
+{
+    color:#AAAAAA;
+    text-align:center;
+    margin-top:75px;
+}
+
+.footer a
+{
+    color:#7777FF;
+}
+
+.footer a:visited
+{
+    color:#7777FF;
+}
+
+.menutext
+{
+    color:#aaaaaa;
+}
+
+.button-panel
+{
+    padding:5px 5px 5px 10px !important;
+}
+
+.button-panel-wrapper
+{
+  margin-bottom:0px !important;
+}
+
+.button-panel-wrapper a
+{
+  outline: none !important;
+}
+
+.button-panel-wrapper a:focus
+{
+  text-decoration:none;
+  color: rgb(66, 139, 202) !important;
+}
+
+.button-panel-hover:hover
+{
+    background-color:#ebebeb;
+}
+
