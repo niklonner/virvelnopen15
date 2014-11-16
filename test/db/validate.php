@@ -3,7 +3,7 @@
 //require_once 'dbfuncs.php';
 
 function verify_bits_id($string) {
-    $res = preg_match("#^[MK]\d{6}[A-Z]{3}\d{2}$#", $string);
+    $res = preg_match("#^[MK]\d{6}[\p{L}]{3}\d{2}$#iu", $string);
 
     return (!(!$res || $res==0));
 }
@@ -25,7 +25,7 @@ function verify_firstname($string) {
 
 function verify_club($string) {
 
-    $res = preg_match("#^[\p{L}][\p{L}\- 0-9]*$#iu", $string);
+    $res = preg_match("#^[\p{L}][\p{L}\- \.0-9]*$#iu", $string);
 
     return (!(!$res || $res==0));
 

@@ -1,4 +1,4 @@
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -7,7 +7,7 @@
           </button>
           <?php $current_page = preg_replace('/.*\//','',$_SERVER['PHP_SELF'])?>
 
-          <a class="navbar-brand" href="<?php echo $current_page=="index.php" ? "#" : "index.php"; ?>">Gothia Open 2013</a>
+          <a class="navbar-brand" href="<?php echo $current_page=="index.php" ? "#" : "index.php"; ?>">Gothia Open 2014</a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">

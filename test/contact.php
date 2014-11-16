@@ -1,5 +1,7 @@
 <?php
 include 'header.php';
+require_once 'db/globals.php';
+
 ?>
 </head>
 <body>
@@ -7,16 +9,15 @@ include 'header.php';
   <?php
 include 'menu.php';
 ?>
-  
   <div class="container">
-    <h1>Kontakt</h1>
-    <p>
-      Kontaktformulär kommer inom kort. Har ni frågor kan ni ringa hallen på 031-221517 eller webansvarig på 0761-608725.
-    </p>
+<?php
 
+include 'db/dbfuncs.php';
+
+$textdata =  getPageTextFormatted('contact.php');
+echo $textdata['text'];
+?>
   </div>
-
-
   <?php
 include 'footer.php';
 ?>

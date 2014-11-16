@@ -1,75 +1,39 @@
 <?php
-include 'header.php';
+require_once 'header.php';
 require_once 'db/dbfuncs.php';
 require_once 'db/errormessages.php';
 ?>
 </head>
 <body>
+  <input type="hidden" name="squad1" id="squadfield1" value=""/>
+  <input type="hidden" name="squad2" id="squadfield2" value=""/>
+  <input type="hidden" name="squad3" id="squadfield3" value=""/>
+  <input type="hidden" name="id" id="id" value="<?php echo $_GET['id']; ?>"/>
 
   <?php
-include 'menu.php';
+require_once 'menu.php';
+$player = getPlayerInfo($_GET['id']);
 ?>
   
   <div class="container">
-      <form id="player_form" action="doregisterfinal.php" method="post">
-        <input type="hidden" name="bits_name" id="bits_name" value="<?php echo $_POST['bits_name'] ?>"/>
-        <input type="hidden" name="bits_club" id="bits_club" value="<?php echo $_POST['bits_club'] ?>"/>
-        <input type="hidden" name="bits_id" id="bits_id" value="<?php echo $_POST['bits_id'] ?>"/>
-        <input type="hidden" name="squad1" id="squadfield1" value=""/>
-        <input type="hidden" name="squad2" id="squadfield2" value=""/>
-        <input type="hidden" name="squad3" id="squadfield3" value=""/>
-        <div class="row">
-          <div class="col-md-12">
-            <h1>Anmälan steg 2</h1>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="row">
-              <div class="col-md-12">
-                <p>
-                  <strong>Spelare: <?php echo $_POST['bits_name'].", ".$_POST['bits_club'];  ?></strong>
-                </p>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="input-group">
-                  <span class="input-group-addon">Telefonnummer</span>
-                  <input name="phonenumber" id="phonenumber" type="text" class="form-control" placeholder="Endast siffror">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="input-group">
-                  <span class="input-group-addon">E-post</span>
-                  <input name="email" id="email" type="text" class="form-control" placeholder="Valfritt, behövs för att ändra/avboka">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="input-group">
-                  <span class="input-group-addon">Upprepa e-post</span>
-                  <input name="email_repeat" id="email_repeat" type="text" class="form-control" placeholder="Upprepa e-postadress">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div id="errors" style="color:#ff0000; margin-top:20px"></div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-8" id="squads_area">
-            <div class="row" style="font-weight:bold">
-              <div class="col-md-12" id="res">
-                <p>
-                  <strong>Välj starter (markera/avmarkera genom att klicka). Max tre starter varav max en early bird.</strong>
-                </p>
-              </div>
-            </div>
+    <div class="row">
+      <div class="col-md-12">
+        <h1>Ändring/avanmälan steg 2</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <strong><?php echo "$player[firstname] $player[lastname], $player[club]"; ?></strong>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <p>
+          Markera dina starter nedan. Max tre starter varav max en early bird.
+        </p>      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-8" id="squadarea">
 <?php
 $i = 0;
 $i_inactive = 0;
@@ -92,37 +56,41 @@ EOT;
   $i++;
 }
 ?>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            <a class="btn btn-default" href="javascript:void(0);" role="button" id="submitbutton">Skicka anmälan!</a>
-            <span id="errorsfound" style="color:#ff0000"></span>
-          </div>
-        </div>
-      </form>
-
+      </div>
+      <div class="col-md-4">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-8" style="margin-top:0.5em;margin-bottom:0.5em">
+        När du klickar på "begär ändring" nedan kommer ett mail skickas till den e-postadress du registrerat. <span style="font-weight:bold;color:rgb(255,0,0)">Du måste klicka på länken i mailet för att genomföra förändringarna!</span>
+      </div>
+      <div class="col-md-4">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <a class="btn btn-default" href="javascript:void(0);" role="button" id="submitbutton">Begär ändring!</a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <span id="errors" style="color:rgb(255,0,0)"></span>
+      </div>
+    </div>
   </div>
 
 
-  <?php
-include 'footer.php';
+<?php
+require_once 'footer.php';
 ?>
 <script src="js/common.js"></script>
 <script>
 function doregister() {
-  $('#errorsfound').empty();
   $('#submitbutton').html("Jobbar...");
-  $('#submitbutton').unbind();
   $.post(
-    "db/register_player.php",
+    "db/change_registration.php",
     {
-      bits_name: document.getElementById('bits_name').value,
-      bits_club: document.getElementById('bits_club').value,
-      bits_id: document.getElementById('bits_id').value,
-      email: document.getElementById('email').value,
-      email_repeat: document.getElementById('email_repeat').value,
-      phonenumber: document.getElementById('phonenumber').value,
+      id : document.getElementById('id').value,
       squad1: document.getElementById('squadfield1').value,
       squad2: document.getElementById('squadfield2').value,
       squad3: document.getElementById('squadfield3').value
@@ -130,14 +98,13 @@ function doregister() {
     function(data) {
       var arr = data.split("__linebreak");
       if (arr[0] == "ok") {
-        window.location.href = "confirmregistration.php?" + arr[1];
+        window.location.href = "confirmchangerequest.php?" + arr[1];
       } else {
-        $('#submitbutton').html("Skicka anmälan!");
-        $('#submitbutton').click(function(){doregister();});
+        $('#submitbutton').html("Begär ändring!");
         $('#errors').empty();
+        $('#errors').append('<p>Följande fel hittades:</p>');
         var ul = document.createElement('ul');
         $('#errors').append(ul);
-        $('#errorsfound').html('Fel hittades, se ovan.');
         for (err in arr) {
           $('#errors ul').append('<li>'+arr[err]+'</li>');
         }
@@ -160,8 +127,7 @@ $to_disable = array();
 foreach (getSquadInfo() as $arr) {
   if (!(!okStartTime($arr[day],$arr[time]) || squadFull($arr[day],$arr[time]) || squadCancelled($arr[day],$arr[time]))) {
     $isearlybird = $arr['earlybird'] == 1 ? "true" : "false";
-    echo "buttonarray[$i] = build_panel_button('javascript:handle_squad_click($i);','".utf8_encode($arr['info']).
-        " ($arr[count]/$arr[spots] spelare)','#FFFFFF',false,true);";
+    echo "buttonarray[$i] = build_panel_button('javascript:handle_squad_click($i);','".utf8_encode($arr['info'])." ($arr[count]/$arr[spots] spelare)','#FFFFFF',false,true);";
     echo <<<EOT
     $('#squad$i').append(buttonarray[$i]);
     squadarray[$i] = {};
@@ -169,6 +135,7 @@ foreach (getSquadInfo() as $arr) {
     squadarray[$i].selected = false;
     squadarray[$i].isearlybird = $isearlybird;
 EOT;
+    $squadidtoindex[$arr['day'].$arr['time']] = $i;
     $i++;
   } else {
     $info = utf8_encode($arr['info']);
@@ -177,14 +144,30 @@ EOT;
     $('#inactivesquad$i_inactive').append(inactivebutton$i_inactive);
 EOT;
     $to_disable[] = "inactivebutton{$i_inactive}.id";
+    $inactivesquadidtoindex[$arr[day].$arr[time]] = $i_inactive;
     $i_inactive++;
   }
 }
-?>
-render_custom();
-<?php
+echo "render_custom();";
 foreach ($to_disable as $disable) {
   echo "disable_tick_button($disable);";
+}
+$playedsquads = 0;
+foreach (getPlayerSquads($_GET['id']) as $sq) {
+  if ($sq['done'] == true) {
+    $playedsquads++;
+    // change glyphicon
+    $index = $inactivesquadidtoindex[$sq[day].$sq[time]];
+    echo <<<EOT
+var glyphtd = $('#inactivesquad$index').find(".glyph-td");
+$(glyphtd).empty();
+$(glyphtd).append('<span class="glyphicon glyphicon-ok"></span>');
+EOT;
+  } else {
+    // not especially elegant to use both of these, but... i dont know...
+    echo "handle_squad_click(".$squadidtoindex[$sq['day'].$sq['time']].");";
+    echo "$(buttonarray[".$squadidtoindex[$sq['day'].$sq['time']]."]).find('a').trigger('click');";
+  }
 }
 ?>
 })();
@@ -193,6 +176,9 @@ function handle_squad_click(i) {
   squadarray[i].selected = squadarray[i].selected == true ? false : true;
   update_squads(squadarray[i].selected);
 }
+var chooseablesquads = <?php echo 3-$playedsquads;?>;
+
+update_squads(true); // in case we should disable all
 function update_squads(whatchange) {
   // reset hidden squad fields
   document.getElementById('squadfield1').value = "";
@@ -208,7 +194,7 @@ function update_squads(whatchange) {
   }
 
   // disable/activate buttons if needed
-  if ((squadcount >= 3 && whatchange==true) || (squadcount == 2 && whatchange==false)) {
+  if ((squadcount >= chooseablesquads && whatchange==true) || (squadcount == (chooseablesquads-1) && whatchange==false)) {
     for (i=0;i<squadarray.length;i++) {
      if (squadarray[i].selected == false) {
         if (whatchange == true) {
@@ -221,7 +207,8 @@ function update_squads(whatchange) {
   }
   // special early bird handling (only works for max two eb's)
   // always consider, except when going to three selected squads
-  if (!(squadcount >= 3 && whatchange==true)) {
+  // both early birds have been played now, so screw this code
+/*  if (!(squadcount >= 3 && whatchange==true)) {
     var earlybird = [];
     // count squads
     for (i=0;i<squadarray.length;i++) {
@@ -241,8 +228,9 @@ function update_squads(whatchange) {
         enable_tick_button(buttonarray[earlybird[i].realid].id);
       }
     }
-  }
+  }*/
 }
 </script>
+
 </body>
 </html>

@@ -13,6 +13,6 @@
     <meta name="keywords" content="" />
     <meta name="description" content="" />
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>Gothia Open 2013 förenklad webbsida</title>
+    <title>Gothia Open 2014 förenklad webbsida</title>
     <link href="style.css" rel="stylesheet" type="text/css"/>
 

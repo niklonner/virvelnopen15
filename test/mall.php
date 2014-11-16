@@ -1,11 +1,11 @@
 <?php
-include 'header.php';
+require_once 'header.php';
 ?>
 </head>
 <body>
 
   <?php
-include 'menu.php';
+require_once 'menu.php';
 ?>
   
   <div class="container">
@@ -14,7 +14,7 @@ include 'menu.php';
 
 
   <?php
-include 'footer.php';
+require_once 'footer.php';
 ?>
 </body>
 </html>

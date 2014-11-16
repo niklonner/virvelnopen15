@@ -2,6 +2,7 @@
 
 require_once 'globals.php';
 require_once 'validate.php';
+require_once '../Parsedown.php';
 
 $dbh = null;
 $dbhandlers = 0;
@@ -30,15 +31,23 @@ function closeDB() {
 
 function getSETime() {
     $now = new DateTime();
-    return $now->add(new DateInterval('PT1H'));
+    return $now;//->add(new DateInterval('PT1H'));
 }
 
 function okStartTime($day, $time) {
-    $latest = new DateTime();
+/*    $latest = new DateTime();
     $latest->setTime(substr($time, 0, 2), substr($time,2));
     $latest->setDate("20" . substr($day,0,2),substr($day,2,2),substr($day,4));
     $latest->sub(new DateInterval('PT15M')); // why not 30??????
-    return $latest->diff(getSETime())->format('%R')=='+' ? false : true;
+    return $latest->diff(getSETime())->format('%R')=='+' ? false : true;*/
+    $dbh = openDB();
+    $stmt = $dbh->prepare("SELECT done FROM Squads WHERE day=:day AND time=:time");
+    $stmt->bindParam("day",$day);
+    $stmt->bindParam("time",$time);
+    $stmt->execute();
+    $res = $stmt->fetch();
+    closeDB();
+    return $res != null && $res[0]!=true;
 }
 
 function squadExists($day, $time) {
@@ -52,13 +61,15 @@ function squadExists($day, $time) {
     return $res[0]==1;
 }
 
-function registeredForSquad($id, $bits_id, $day, $time) {
+function registeredForSquad($id, $day, $time) {
     $dbh = openDB();
-    $stmt = $dbh->prepare("SELECT count(*) FROM PlayersInSquads WHERE (day=:day AND time=:time) AND (id=:id OR bitsid=:bitsid)");
+    if (!isset($bits_id) || $bits_id=='') {
+      $bits_id = 'NOTABITSID__';
+    }
+    $stmt = $dbh->prepare("SELECT count(*) FROM PlayersInSquads WHERE (day=:day AND time=:time) AND id=:id");
     $stmt->bindParam("day", $day);
     $stmt->bindParam("time", $time);
     $stmt->bindParam("id", $id);
-    $stmt->bindParam("bitsid", $bits_id);
     $stmt->execute();
     $res = $stmt->fetch();
     closeDB();
@@ -87,6 +98,10 @@ function squadFull($day, $time) {
     return $res!=false && $res[0]==$res[1];
 }
 
+function multipleEarlyBirdsChosen($squads) {
+  return false;
+}
+
 // returns a 2d array containing info about all squads
 // outer array is indexed by integers
 // inner arrays are indexed by string keys: count, day, time, info, spots
@@ -102,10 +117,24 @@ function getSquadInfo() {
     return $res;
 }
 
+// set player details
+function setPlayerDetails($id,$lastname,$club,$bitsid,$hcp) {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("UPDATE Players SET lastname=:lastname, bitsid=:bitsid, club=:club, hcp=:hcp WHERE id=:id");
+  $stmt->bindParam("lastname",$lastname);
+  $stmt->bindParam("bitsid",$bitsid);
+  $stmt->bindParam("club",$club);
+  $stmt->bindParam("hcp",$hcp);
+  $stmt->bindParam("id",$id);
+  $res = $stmt->execute();
+  closeDB();
+  return $res;
+}
+
 // get players in squad
 function getSquadPlayers($day, $time) {
     $dbh = openDB();
-    $stmt = $dbh->prepare("SELECT id , firstname , lastname , club , hcp , squadnumber FROM PlaysIn NATURAL JOIN Players NATURAL JOIN SquadNumbers WHERE DAY = :day AND time = :time");
+    $stmt = $dbh->prepare("SELECT id , bitsid, firstname , lastname , club , hcp , squadnumber, phonenumber,email FROM PlaysIn NATURAL JOIN Players NATURAL JOIN SquadNumbers WHERE DAY = :day AND time = :time ORDER BY lastname ASC");
     $stmt->bindParam("day", $day);
     $stmt->bindParam("time", $time);
     $stmt->execute();
@@ -131,9 +160,24 @@ function getSquadPlayersInfo($day, $time) {
     return $res;    
 }
 
+// fethes all squad results, even unplayed squads
+function getAllSquadResults($day,$time) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("SELECT * FROM PlaysIn pi join Players p ON pi.id=p.id WHERE pi.day=:day AND pi.time=:time");
+    $stmt->bindParam("day",$day);
+    $stmt->bindParam("time",$time);
+    $stmt->execute();
+    $res = array();
+    while($tmp = $stmt->fetch()) {
+        $res[] = $tmp;
+    }
+    closeDB();
+    return $res;    
+}
+
 function getSquadResultsRaw($day,$time) {
     $dbh = openDB();
-    $stmt = $dbh->prepare("SELECT * FROM AllaResultat NATURAL JOIN SquadNumbers WHERE day=:day AND time=:time");
+    $stmt = $dbh->prepare("SELECT * FROM ResultsRaw WHERE day=:day AND time=:time");
     $stmt->bindParam("day",$day);
     $stmt->bindParam("time",$time);
     $stmt->execute();
@@ -159,7 +203,7 @@ function getChansenResults() {
 
 function getSquadResults($day,$time) {
     $dbh = openDB();
-    $stmt = $dbh->prepare("SELECT * FROM Resultat NATURAL JOIN SquadNumbers WHERE day=:day AND time=:time");
+    $stmt = $dbh->prepare("SELECT * FROM ResultsRaw r JOIN SquadNumbers n ON r.id=n.id AND r.day=n.day AND r.time=n.time  WHERE r.day=:day AND r.time=:time");
     $stmt->bindParam("day",$day);
     $stmt->bindParam("time",$time);
     $stmt->execute();
@@ -171,6 +215,140 @@ function getSquadResults($day,$time) {
     return $res;    
 }
 
+// returns 2d array, outer indexed by player id
+// inner arrays indexed by squad 0,1,2...
+function getRawResultsSortedByPlayer() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT * FROM ResultsRaw r JOIN Squads s on r.day=s.day and r.time=s.time join SquadNumbers n on r.id=n.id and r.day=n.day and r.time=n.time ORDER BY r.id DESC, result DESC, s6hcp DESC, s5hcp DESC, s4hcp DESC, s3hcp DESC, s2hcp DESC, s1hcp DESC");
+  $stmt->execute();
+  $res = array();
+  $previd = -1;
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    if ($tmp[id] != $previd) {
+      if ($previd != -1) {
+        $res[$previd] = $player;
+      }
+      $player = array();
+      $previd = $tmp[id];
+    }
+    $player[] = $tmp;
+  }
+  if ($previd != -1) {
+    $res[$previd] = $player;
+  }
+  closeDB();
+  return $res;
+}
+
+function getNumberOfPlayedSquadsPerPlayer() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("select id, count(*) as count from PlaysIn p join Squads s on s.day=p.day and s.time=p.time where done=1 group by id");
+  $stmt->execute();
+  $res = array();
+  while ($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[$tmp[id]] = $tmp[count];
+  }
+  closeDB();
+  return $res;
+}
+
+function getOrdinaryResults() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT *,o.id as id FROM OrdinaryResults o LEFT OUTER JOIN AllFinalists a ON o.id = a.id");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+function getBitsReportStep2() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("select s.*,p.bitsid, p.id from Step2Results s join Players p on p.id=s.id order by result DESC, tiebreaker DESC, s8hcp DESC, s7hcp desc, s6hcp desc, s5hcp desc, s4hcp desc, s3hcp desc, s2hcp desc,s1hcp desc");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+function getBitsReportStep1() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("select s.*,p.bitsid, p.id from Step1Results s join Players p on p.id=s.id order by result DESC, tiebreaker DESC, s6hcp desc, s5hcp desc, s4hcp desc, s3hcp desc, s2hcp desc,s1hcp desc");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+/*function getNotInFinals() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT o.*, p.bitsid FROM OrdinaryResults o JOIN Players p ON o.id = p.id where p.id not in (SELECT id FROM Step1Results union (SELECT id FROM Step2Results)) order by result desc, s6hcp desc, s5hcp desc, s4hcp desc, s3hcp desc, s2hcp desc, s1hcp desc");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}*/
+
+function getBitsReport() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT o.*, p.bitsid, p.id FROM OrdinaryResults o JOIN Players p ON o.id = p.id ORDER by result desc, s6hcp desc, s5hcp desc, s4hcp desc, s3hcp desc, s2hcp desc, s1hcp desc");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+function getEarlyBirdResults() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT *,o.id as id FROM EarlyBirdResults o LEFT OUTER JOIN AllFinalists a ON o.id = a.id");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+function getTurbo5Results() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT *,o.id as id FROM Turbo5ResultsSorted o LEFT OUTER JOIN AllFinalists a ON o.id = a.id");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+function getTurbo6Results() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT *,o.id as id FROM Turbo6ResultsSorted o LEFT OUTER JOIN AllFinalists a ON o.id = a.id");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+
 function getAllResults() {
     $dbh = openDB();
     $stmt = $dbh->prepare("select r.id,r.firstname,r.lastname,r.club,r.hcp,r.s1,r.s2,r.s3,r.s4,r.s5,r.s6,r.scratch,r.total,r.day,r.time,squadnumber, o.chansen as chansen from Resultat r, (SELECT id, max(total) as total,max(chansen) as chansen, count(*) as squadnumber FROM Resultat GROUP BY id) o where r.id=o.id and r.total=o.total");
@@ -181,6 +359,113 @@ function getAllResults() {
     }
     closeDB();
     return $res;    
+}
+
+function getStep1Results() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT s.*, p.lastname, p.club FROM Step1Results s join Players p on p.id=s.id order by s.result desc, s.tiebreaker desc, s.s6hcp desc, s.s5hcp desc, s.s4hcp desc, s.s3hcp desc, s.s2hcp desc, s.s1hcp desc");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+function registerStep1Result($id,$games,$tiebreaker) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("UPDATE FinalStep1Results SET s1 = :s1 , s2 = :s2 , s3 = :s3 , s4 = :s4 , s5 = :s5 , s6 = :s6 , tiebreaker = :tiebreaker WHERE id = :id");
+    $stmt->bindParam("id",$id);
+    $stmt->bindParam("s1",$games[0]);
+    $stmt->bindParam("s2",$games[1]);
+    $stmt->bindParam("s3",$games[2]);
+    $stmt->bindParam("s4",$games[3]);
+    $stmt->bindParam("s5",$games[4]);
+    $stmt->bindParam("s6",$games[5]);
+    $stmt->bindParam("tiebreaker",$tiebreaker);
+    $res = $stmt->execute();
+    closeDB();
+    return $res;
+}
+
+function getNumberOfStep2Games() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT MAX(gamenum) from FinalStep2Matches");
+  $stmt->execute();
+  $res = $stmt->fetch();
+  closeDB();
+  return $res[0];
+}
+
+function getStep2Matches() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT * FROM Step2Matchups ORDER BY gamenum ASC, lane ASC");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+function getStep2Players() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT id FROM Step2Seedings");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+function registerStep2AResult($id, $gamenum, $result) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("INSERT INTO FinalStep2AResults (id,gamenum,res) VALUES (:id, :gamenum, :result) ON DUPLICATE KEY UPDATE res=VALUES(res)");
+    $stmt->bindParam("id",$id);
+    $stmt->bindParam("gamenum",$gamenum);
+    $stmt->bindParam("result",$result);
+    $res = $stmt->execute();
+    closeDB();
+    return $res;
+}
+
+function registerStep2BResult($id, $result, $tiebreaker) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("INSERT INTO FinalStep2BResults (id,res,tiebreaker) VALUES (:id, :result, :tiebreaker) ON DUPLICATE KEY UPDATE res=VALUES(res), tiebreaker=VALUES(tiebreaker)");
+    $stmt->bindParam("id",$id);
+    $stmt->bindParam("result",$result);
+    $stmt->bindParam("tiebreaker",$tiebreaker);
+    $res = $stmt->execute();
+    closeDB();
+    return $res;
+}
+
+function getStep2BResults() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("select s.id, p.lastname, p.club, p.hcp, f.res, f.tiebreaker from Step2Seedings s left join FinalStep2BResults f on s.id=f.id join Players p on s.id = p.id");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+function getStep2Results() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("select s.*,p.lastname, p.club from Step2Results s join Players p on p.id=s.id order by result DESC, tiebreaker DESC, s8hcp DESC, s7hcp desc, s6hcp desc, s5hcp desc, s4hcp desc, s3hcp desc, s2hcp desc,s1hcp desc");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
 }
 
 // return an array $arr containing all results in $results but total score only
@@ -225,7 +510,7 @@ function getReentryCount() {
     $stmt->execute();
     $res = $stmt->fetch();
     closeDB();
-    return $res[0] - getPlayerCount();
+    return $res[0];
 }
 
 function getAllPrizesInfo() {
@@ -278,23 +563,29 @@ function getAllPrizesInfo() {
 
 function getAllPlayers() {
     $dbh = openDB();
-    $stmt = $dbh->prepare("SELECT DISTINCT id, firstname, lastname, club FROM PlayersInSquads ORDER BY firstname ASC, lastname ASC");
+    $stmt = $dbh->prepare("SELECT DISTINCT id, firstname, lastname, club, bitsid, email FROM PlayersInSquads ORDER BY firstname ASC, lastname ASC");
     $stmt->execute();
     $res = array();
-    while ($tmp = $stmt->fetch()) {
-        $tmp2["id"] = $tmp["id"];
-        $tmp2["firstname"] = $tmp["firstname"];
-        $tmp2["lastname"] = $tmp["lastname"];
-        $tmp2["club"] = $tmp["club"];
-        $res[] = $tmp2;
+    while ($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $res[] = $tmp;
     }
     closeDB();
     return $res;
 }
 
+function playerExists($id) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("SELECT * FROM PlaysIn where id=:id");
+    $stmt->bindParam("id",$id);
+    $stmt->execute();
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    closeDB();
+    return $res != null;
+
+}
 function getAllPlayersWithSquads() {
     $dbh = openDB();
-    $stmt = $dbh->prepare("SELECT DISTINCT id, firstname, lastname, day, time, info, club FROM PlayersInSquads ORDER BY firstname ASC, lastname ASC, day ASC, time ASC");
+    $stmt = $dbh->prepare("SELECT DISTINCT id, firstname, lastname, day, time, info, club FROM PlayersInSquads ORDER BY firstname ASC, lastname ASC, id ASC, day ASC, time ASC");
     $stmt->execute();
     $res = array();
     while ($tmp = $stmt->fetch()) {
@@ -324,13 +615,11 @@ function getSquadInfoLine($day, $time) {
 
 function getPlayerSquads($id) {
     $dbh = openDB();
-    $stmt = $dbh->prepare("SELECT day, time FROM PlaysIn WHERE id=:id");
+    $stmt = $dbh->prepare("SELECT Squads.day, Squads.time, info, done FROM PlaysIn JOIN Squads ON PlaysIn.day = Squads.day AND PlaysIn.time = Squads.time WHERE id=:id ORDER BY Squads.day ASC, Squads.time ASC");
     $stmt->bindParam("id", $id);
     $stmt->execute();
     $res = array();
-    while ($tmp = $stmt->fetch()) {
-        unset($tmp[0]);
-        unset($tmp[1]);
+    while ($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $res[] = $tmp;
     }
     closeDB();
@@ -342,7 +631,7 @@ function getPlayerInfo($id) {
     $stmt = $dbh->prepare("SELECT * FROM Players WHERE id=:id");
     $stmt->bindParam("id", $id);
     $stmt->execute();
-    $res = $stmt->fetch();
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
     closeDB();
     return $res;
 }
@@ -383,9 +672,9 @@ function toggleSquadVisibility($day,$time,$on) {
     return "ok";
 }
 
-function registerResult($day, $time, $id, $games, $chansen) {
+function registerResult($id, $day, $time, $games, $turbo) {
     $dbh = openDB();
-    $stmt = $dbh->prepare("UPDATE PlaysIn SET s1 = :s1 , s2 = :s2 , s3 = :s3 , s4 = :s4 , s5 = :s5 , s6 = :s6, chansen = :chansen WHERE id = :id AND day = :day AND time = :time");
+    $stmt = $dbh->prepare("UPDATE PlaysIn SET s1 = :s1 , s2 = :s2 , s3 = :s3 , s4 = :s4 , s5 = :s5 , s6 = :s6, turbo = :turbo WHERE id = :id AND day = :day AND time = :time");
     $stmt->bindParam("id",$id);
     $stmt->bindParam("day",$day);
     $stmt->bindParam("time",$time);
@@ -395,25 +684,28 @@ function registerResult($day, $time, $id, $games, $chansen) {
     $stmt->bindParam("s4",$games[3]);
     $stmt->bindParam("s5",$games[4]);
     $stmt->bindParam("s6",$games[5]);
-    $stmt->bindParam("chansen",$chansen);
-    if (!$stmt->execute()) {
-        closeDB();
-        return "insert failed";
-    }
+    $stmt->bindParam("turbo",$turbo);
+    $res = $stmt->execute();
     closeDB();
-    return "ok";
+    return $res;
 }
 
 function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $email, $email_repeat, $squad1, $squad2, $squad3) {
     global $globMailReceivers, $globMailTag, $globMailHeader;
     // validate all fields
-    if ($bits_id != '' && !verify_bits_id($bits_id)) {
-	$error["bits_id"] = true;
+/*    if ($bits_id != '' && !verify_bits_id($bits_id)) {
+      $error["bits_id"] = true;
     } else if ($bits_id != '') {
       $firstname = "";
     } else {
       if (!verify_firstname($firstname))
         $error["firstname"] = true;
+    }*/
+    if ($firstname != '' && !verify_firstname($firstname)) {
+      $error["firstname"] = true;
+    }
+    if ($bits_id != '' && !verify_bits_id($bits_id)) {
+      $error['bits_id'] = true;
     }
     if (!verify_lastname($lastname))
       $error["lastname"] = true;
@@ -432,16 +724,25 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
     if ($squad1=="none" && $squad2=="none" && $squad3=="none")
         $error["nonechosen"] = true;
 
+    if (multipleEarlyBirdsChosen(array($squad1,$squad2,$squad3))) {
+      $error['multipleearlybirds'] = true;
+    }
+
+    if (isset($error)) {
+      return $error;
+    }
+
     if ($squad1 != "none") {
         $day = substr($squad1,0,6);
         $time = substr($squad1,6,4);
         // player already registered?
-        if (registeredForSquad('',$bits_id,$day,$time)) {
+        if (registeredForSquad('',$day,$time)) {
           $error["alreadyonsquad1"] = true;
         }
         // squad exists?
         if (!squadExists($day, $time)) {
             $error["internal"] = true;
+echo "internal 1";
         }
         // squad not full?
         if (squadFull($day,$time)) {
@@ -460,11 +761,12 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
         $day = substr($squad2,0,6);
         $time = substr($squad2,6,4);
         // player already registered?
-        if (registeredForSquad('',$bits_id,$day,$time)) {
+        if (registeredForSquad('',$day,$time)) {
           $error["alreadyonsquad2"] = true;
         }
         if (!squadExists($day, $time)) {
             $error["internal"] = true;
+echo "internal 2";
         }
         if (squadFull($day,$time)) {
             $error["squad2full"] = true;
@@ -485,11 +787,12 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
         $day = substr($squad3,0,6);
         $time = substr($squad3,6,4);
         // player already registered?
-        if (registeredForSquad('',$bits_id,$day,$time)) {
+        if (registeredForSquad('',$day,$time)) {
           $error["alreadyonsquad3"] = true;
         }
         if (!squadExists($day, $time)) {
             $error["internal"] = true;
+echo "internal 3";
         }
         if (squadFull($day,$time)) {
             $error["squad3full"] = true;
@@ -524,25 +827,10 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
     $stmt->bindParam("email", $email);
     if(!$stmt->execute()) {
         $error["internal"] = true;
+echo "internal 4";
         return $error;
     }
   
-    // get id of player
-/*    $stmt = $dbh->prepare("SELECT id FROM Players WHERE firstname=:firstname AND lastname=:lastname AND club=:club AND phonenumber=:phonenumber AND email=:email;");
-    $stmt->bindParam("firstname", $firstname);
-    $stmt->bindParam("lastname", $lastname);
-    $stmt->bindParam("club", $club);
-    $stmt->bindParam("password", md5($password . $globSalt));
-    $stmt->bindParam("phonenumber", $phonenumber);
-    $stmt->bindParam("email", $email);
-    if(!$stmt->execute()) {
-        $error["internal"] = true;
-        return $error;
-    }*/
-
-    
-
-//    $idarr = $stmt->fetch();
     $id = $dbh->lastInsertId();
   
     // insert into table playsin
@@ -553,6 +841,7 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
         $stmt->bindParam("time", substr($squad,6,4));
         if (!$stmt->execute()) {
             $error["internal"] = true;
+echo "internal 5";
             return $error;
         }
     }
@@ -580,8 +869,181 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
       ob_start();
       echo "Hej, <br>$namestring är nu anmäld till följande start(er):<br>$squadstring<br>Mvh Team Gothia BC";
       $message = ob_get_clean();
-      mail($email, $globMailTag . "Tack för din anmälan",$message, $globMailHeader);
+      $ret = mail($email, "=?utf-8?B?" . base64_encode($globMailTag . "Tack för din anmälan") . "?=",$message, $globMailHeader);
+/*      if ($ret != TRUE) {
+        $error['internal'] = true;
+      }*/
+      if (isset($error)) {
+        return $error;
+      }
     }    
+    return "ok";
+}
+
+function sortSquads($s1,$s2) {
+  if ($s1[day] < $s2[day]) {
+    return -1;
+  } else if ($s1[day] == $s2[day]) {
+    if ($s1[time] < $s2[time]) {
+      return -1;
+    } else if ($s1[time] == $s2[time]) {
+      return 0; 
+    } else {
+      return 1;
+    }
+  } else {
+    return 1;
+  }
+}
+
+// $squads need to be a "normal" array meaning $squads[0] .. $squads[n-1] should be set
+function checkOkToChangeSquads($id, $squads) {
+    global $globMailReceivers, $globMailTag, $globMailHeader, $globSalt, $globProductionString, $globWebsiteAddress;
+
+    // check if all unique
+    if (isset($squads[1]) && ($squads[1]==$squads[0] || $squads[1]==$squads[2] || $squads[0]==$squads[2])) {
+        $error['samechosen'] = true;
+    }
+/*
+    Early birds have been played now
+    if (multipleEarlyBirdsChosen($squads)) {
+      $error['multipleearlybirds'] = true;
+    }*/
+
+    if (isset($error)) {
+      return $error;
+    }
+
+    if (!playerExists($id)) {
+      $error['internal'] = true;
+      return $error;
+    }
+
+    // add player's previous squad(s), if not already present
+    $playersquads = getPlayerSquads($id);
+    foreach ($playersquads as $playersquad) {
+        // if squad has been played
+        if (!okStartTime($playersquad[day],$playersquad[time])) {
+          $alreadyexists = false;
+          foreach($squads as $sq) {
+              if ($playersquad['day']==substr($sq,0,6) && $playersquad['time']==substr($sq,6,4)) {
+                  $alreadyexists = true;
+                  break;
+              }
+          }
+          if (!$alreadyexists) {
+            $squads[] = "$playersquad[day]$playersquad[time]";
+          }
+        }
+    }
+
+    // if too many squads, set error and return
+    if (count($squads) > 3) {
+      $error[toomanysquads] = true;
+      return $error;
+    }
+
+    asort($squads);
+
+    // check if $playersquads == $playersquad
+    $eqhelper = array();
+    foreach ($playersquads as $sq) {
+      $eqhelper[] = "$sq[day]$sq[time]";
+    }
+    if ($squads==$eqhelper) {
+      $error[nochange] = true;
+      return $error;
+    }
+
+    // for each squad
+    // if player not already registered
+    // check availability and other criteria
+    $i = 0; 
+    foreach ($squads as $squad) {
+        $i++;
+        $day = substr($squad,0,6);
+        $time = substr($squad,6,4);
+        //echo "$day $time<br>";
+        if (!registeredForSquad($id,$day,$time)) {
+            // if squad exists and is not passed
+            if (!okStartTime($day,$time)) {
+                if (!isset($error["squad{$i}passed"])) {
+                    $error["squad{$i}passed"] = array();
+                }
+                $error["squad{$i}passed"][] = array("day" => $day, "time" => $time);
+            } else if (squadFull($day,$time)) { // if squad full
+                if (!isset($error["squad{$i}full"])) {
+                    $error["squad{$i}full"] = array();
+                }
+                $error["squad{$i}full"][] = array("day" => $day, "time" => $time);
+            } else if (squadCancelled($day,$time)) {
+                if (!isset($error["squad{$i}cancelled"])) {
+                    $error["squad{$i}cancelled"] = array();
+                }
+                $error["squad{$i}cancelled"][] = array("day" => $day, "time" => $time);
+            } 
+        }
+    }
+    
+    if (isset($error)) {
+        return $error;
+    }
+
+    $player = getPlayerInfo($id);
+
+    ob_start();
+    echo $player[lastname];
+    echo "<br/>";
+    var_dump(func_get_args());
+    $message = ob_get_clean();
+    mail($globMailReceivers, $globMailTag . "Starting to change registration",$message, $globMailHeader);
+   
+    $name = is_null($player['bitsid']) ? $player['firstname'] . " " . $player['lastname'] : $player['lastname'];
+    $link = $globWebsiteAddress . "/dochangefinal.php?id=$id";
+    $hashstring = $id;
+    $i = 1;
+    foreach ($squads as $sq) {
+      $link .= "&squad$i=$sq";
+      $hashstring .= $sq;
+      $i++;
+    }
+    $hashstring .= $globProductionString;
+    $MAC = sha1($hashstring.$globSalt);
+    $link .= "&MAC=$MAC";
+
+    ob_start();
+
+    echo "Hej $name,<br/><br/>";
+
+    if (empty($squads)) {
+      echo "Du har begärt avanmälan från tävlingen.<br/>";
+    } else {
+      echo "Du har begärt ändring av dina starter. Du vill spela följande starter:<br/>";
+      foreach ($squads as $sq) {
+        echo utf8_encode(getSquadInfoLine(substr($sq,0,6),substr($sq,6,4))) . "<br/>";
+      }
+
+    }
+EOT;
+    echo <<<EOT
+<br/>
+<strong>För att genomföra ändringarna måste du bekräfta dem genom att klicka på följande länk:</strong>
+    <a href="$link">$link</a>.<br/><br/>
+
+    Med vänliga hälsningar,<br/>
+    Team Gothia BC
+EOT;
+
+    $message = ob_get_clean(); 
+    $ret = mail($player['email'], "=?utf-8?B?" . base64_encode($globMailTag . "Ändring begärd") . "?=",$message, $globMailHeader);
+    if ($ret != TRUE) {
+      $error['internal'] = true;
+    }
+    if (isset($error)) {
+      return $error;
+    }
+ 
+    // return ok
     return "ok";
 }
 
@@ -595,34 +1057,69 @@ function changeSquads($id, $squads) {
     if (isset($squads[1]) && ($squads[1]==$squads[0] || $squads[1]==$squads[2] || $squads[0]==$squads[2])) {
         $error['samechosen'] = true;
     }
+
+/*  Early birds have been played now
+    if (multipleEarlyBirdsChosen($squads)) {
+      $error['multipleearlybirds'] = true;
+    }*/
+
+    // add player's previous squad(s), if not already present
+    $playersquads = getPlayerSquads($id);
+    foreach ($playersquads as $playersquad) {
+        // if squad has been played
+        if (!okStartTime($playersquad[day],$playersquad[time])) {
+          $alreadyexists = false;
+          foreach($squads as $sq) {
+              if ($playersquad['day']==substr($sq,0,6) && $playersquad['time']==substr($sq,6,4)) {
+                  $alreadyexists = true;
+                  break;
+              }
+          }
+          if (!$alreadyexists) {
+            $squads[] = "$playersquad[day]$playersquad[time]";
+          }
+        }
+    }
+
+    // if too many squads, set error and return
+    if (count($squads) > 3) {
+      $error[toomanysquads] = true;
+      return $error;
+    }
+
+    if (isset($error)) {
+      return $error;
+    }
+
     
     //var_dump($squads);
     //echo "<br>";
     // for each squad
     // if player already registered, add to dont unregister-list
     // else check availability and not passed    
+    $i = 0;
     foreach ($squads as $squad) {
+        $i++;
         $day = substr($squad,0,6);
         $time = substr($squad,6,4);
         //echo "$day $time<br>";
         if (!registeredForSquad($id,$day,$time)) {
             // if squad passed
-            //echo "not registered<br>";
             if (!okStartTime($day,$time)) {
-                if (!isset($error['squadpassed'])) {
-                    $error['squadpassed'] = array();
+                if (!isset($error["squad{$i}passed"])) {
+                    $error["squad{$i}passed"] = array();
                 }
-                $error['squadpassed'][] = array("day" => $day, "time" => $time);
+                $error["squad{$i}passed"][] = array("day" => $day, "time" => $time);
             } else if (squadFull($day,$time)) { // if squad full
-                if (!isset($error['squadfull'])) {
-                    $error['squadfull'] = array();
+                if (!isset($error["squad{$i}full"])) {
+                    $error["squad{$i}full"] = array();
                 }
-                $error['squadfull'][] = array("day" => $day, "time" => $time);
+                $error["squad{$i}full"][] = array("day" => $day, "time" => $time);
             } else if (squadCancelled($day,$time)) {
-                if (!isset($error['squadcancelled'])) {
-                    $error['squadcancelled'] = array();
+                if (!isset($error["squad{$i}cancelled"])) {
+                    $error["squad{$i}cancelled"] = array();
                 }
-                $error['squadcancelled'][] = array("day" => $day, "time" => $time);
+                $error["squad{$i}cancelled"][] = array("day" => $day, "time" => $time);
             } else {
                 //echo "ok to register";
                 $toregister[] = array("day" => $day, "time" => $time);
@@ -637,11 +1134,8 @@ function changeSquads($id, $squads) {
     }
 
     $dbh = openDB();
-
     // unregister player from current non-passed squads
     $chosensquads = getPlayerSquads($id);
-//    var_dump($chosensquads);
-//    echo "<br>";
     foreach ($chosensquads as $k => $chosensquad) {
         foreach($dontunregister as $dont) {
             if ($chosensquad['day']==$dont['day'] && $chosensquad['time']==$dont['time']) {
@@ -650,13 +1144,16 @@ function changeSquads($id, $squads) {
         }
     }
     
-    if (count($dontunregister) + count($toregister) > 3) {
-        $error['toomanysquads'] = count($dontunregister) + count($toregister);
-        return $error;
+    if (empty($chosensquads) && empty($toregister)) {
+      $error['changealreadyperformed'] = true;
+      return $error;
     }
-    
-//    var_dump($chosensquads);
-//    echo "<br>";
+
+    if (!playerExists($id)) {
+      $error['internal'] = true;
+      return $error;
+    }
+ 
     foreach ($chosensquads as $chosensquad) {
         $day = $chosensquad['day'];
         $time = $chosensquad['time'];
@@ -695,11 +1192,36 @@ function changeSquads($id, $squads) {
         return $error;
     }
 
+    $player = getPlayerInfo($id);
+
     ob_start();
+    echo $player[lastname];
+    echo "<br/>";
     var_dump(func_get_args());
     $message = ob_get_clean();
     mail($globMailReceivers, $globMailTag . "Changed registration",$message, $globMailHeader);
-    
+
+    ob_start();
+
+    $name = is_null($player['bitsid']) ? $player['firstname'] . " " . $player['lastname'] : $player['lastname'];
+    echo "Hej $name,<br/><br/>";
+
+    if (empty($squads)) {
+      echo "Du är nu avanmäld från tävlingen.<br/>";
+    } else {
+      echo "Du är nu anmäld till följande starter:<br/>";
+      $squads = getPlayerSquads($id);
+      foreach ($squads as $sq) {
+        echo utf8_encode(getSquadInfoLine($sq['day'],$sq['time'])) . "<br/>";
+      }
+    }
+
+    echo "<br/>";
+    echo "Med vänliga hälsningar,<br/>Team Gothia BC";
+
+    $message = ob_get_clean();
+    mail($player['email'], "=?utf-8?B?" . base64_encode($globMailTag . "Ändringar genomförda") . "?=", $message, $globMailHeader);
+
     // return ok
     return "ok";
 }
@@ -718,6 +1240,50 @@ function verifyPassword($id,$trypassword) {
     $password = $passwordarr[0];
     global $globSalt;
     return md5($trypassword . $globSalt) == $password;
+}
+
+function getPageText($page) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("SELECT * FROM Pages WHERE page=:page AND active=1");
+    $stmt->bindParam("page", $page);
+    $stmt->execute();
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    closeDB();
+    return $res;
+}
+
+function getPageTextFormatted($page) {
+    $res = getPageText($page);
+    $pd = new Parsedown();
+    $res[text] = $pd->text($res[text]);
+    return $res;
+}
+
+function setPageText($page, $text, $comment) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("UPDATE Pages set active=0 where page=:page");
+    $stmt->bindParam("page",$page);
+    $res1 = $stmt->execute();
+    $stmt = $dbh->prepare("INSERT INTO Pages (page,time,comment,text,active) VALUES (:page,NOW(),:comment,:text,1)");
+    $stmt->bindParam("page",$page);
+    $stmt->bindParam("comment",$comment);
+    $stmt->bindParam("text",$text);
+    $res2 = $stmt->execute();
+    closeDB();
+    return $res1 && $res2;
+}
+
+function getAvailablePages() {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("SELECT page FROM Pages GROUP BY page order by page ASC");
+    $stmt->bindParam("page", $page);
+    $stmt->execute();
+    $res = array();
+    while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $res[] = $tmp[page];
+    }
+    closeDB();
+    return $res;    
 }
 
 ?>

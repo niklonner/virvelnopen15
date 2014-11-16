@@ -12,18 +12,7 @@ include 'menu.php';
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-        <h1>Finalresultat</h1>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-5" id="finals">
-      </div>
-      <div class="col-md-7">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <h1>Kvalresultat</h1>
+        <h1>Resultat</h1>
       </div>
     </div>
     <div class="row">
@@ -51,7 +40,7 @@ include 'menu.php';
     <div class="row">
       <div class="col-md-12">
         <p>
-          När en start har spelats visas resultaten i länkarna nedan. Innan dess visas startlistorna.
+          När en start har spelats visas resultaten i länkarna nedan. Innan dess visas startlistan.
         </p>
       </div>
     </div>
@@ -79,12 +68,7 @@ include 'footer.php';
 ?>
 <script src="js/common.js"></script>
 <script>
-$('#finals').append(build_panel_button('step1.php','Finalsteg 1','#FFFFFF',true,false));
-$('#finals').append(build_panel_button('step2.php','Finalsteg 2','#FFFFFF',true,false));
-$('#combined').append(build_panel_button('ordinaryresults.php','<strong>Totala kvalresultat</strong>','#FFFFFF',true,false));
-$('#combined').append(build_panel_button('earlybirdresults.php','Early bird-resultat','#FFFFFF',true,false));
-$('#combined').append(build_panel_button('turbo5results.php','Resultat Turbo serie 5','#FFFFFF',true,false));
-$('#combined').append(build_panel_button('turbo6results.php','Resultat Turbo serie 6','#FFFFFF',true,false));
+$('#combined').append(build_panel_button('ordinaryresults.php','<strong>Resultat</strong>','#FFFFFF',true,false));
 $('#allplayers').append(build_panel_button('allplayers.php','<strong>Visa samtliga spelare (<?php echo getPlayerCount(); ?> spelare, <?php echo getReentryCount();?> starter)</strong>','#FFFFFF',true,false));
 <?php
 $squads = getSquadInfo();

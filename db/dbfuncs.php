@@ -2,6 +2,7 @@
 
 require_once 'globals.php';
 require_once 'validate.php';
+require_once '../Parsedown.php';
 
 $dbh = null;
 $dbhandlers = 0;
@@ -98,24 +99,7 @@ function squadFull($day, $time) {
 }
 
 function multipleEarlyBirdsChosen($squads) {
-  // hard-coded early bird squads
-  $eb[0] = "1312261000";
-  $eb[1] = "1312261300";
-  // prepare array
-  foreach ($squads as $k => $v) {
-    if ($v == 'none') {
-      unset($squads[$k]);
-    }
-  }
-  $ebcount = 0;
-  foreach ($squads as $v) {
-    foreach ($eb as $e) {
-      if ($v == $e) {
-        $ebcount++;
-      }
-    }
-  }
-  return $ebcount > 1;
+  return false;
 }
 
 // returns a 2d array containing info about all squads
@@ -914,7 +898,7 @@ function sortSquads($s1,$s2) {
 
 // $squads need to be a "normal" array meaning $squads[0] .. $squads[n-1] should be set
 function checkOkToChangeSquads($id, $squads) {
-    global $globMailReceivers, $globMailTag, $globMailHeader, $globSalt, $globProductionString;
+    global $globMailReceivers, $globMailTag, $globMailHeader, $globSalt, $globProductionString, $globWebsiteAddress;
 
     // check if all unique
     if (isset($squads[1]) && ($squads[1]==$squads[0] || $squads[1]==$squads[2] || $squads[0]==$squads[2])) {
@@ -1015,7 +999,7 @@ function checkOkToChangeSquads($id, $squads) {
     mail($globMailReceivers, $globMailTag . "Starting to change registration",$message, $globMailHeader);
    
     $name = is_null($player['bitsid']) ? $player['firstname'] . " " . $player['lastname'] : $player['lastname'];
-    $link = "http://gopen.teamgothiabc.se/dochangefinal.php?id=$id";
+    $link = $globWebsiteAddress . "/dochangefinal.php?id=$id";
     $hashstring = $id;
     $i = 1;
     foreach ($squads as $sq) {
@@ -1256,6 +1240,50 @@ function verifyPassword($id,$trypassword) {
     $password = $passwordarr[0];
     global $globSalt;
     return md5($trypassword . $globSalt) == $password;
+}
+
+function getPageText($page) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("SELECT * FROM Pages WHERE page=:page AND active=1");
+    $stmt->bindParam("page", $page);
+    $stmt->execute();
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    closeDB();
+    return $res;
+}
+
+function getPageTextFormatted($page) {
+    $res = getPageText($page);
+    $pd = new Parsedown();
+    $res[text] = $pd->text($res[text]);
+    return $res;
+}
+
+function setPageText($page, $text, $comment) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("UPDATE Pages set active=0 where page=:page");
+    $stmt->bindParam("page",$page);
+    $res1 = $stmt->execute();
+    $stmt = $dbh->prepare("INSERT INTO Pages (page,time,comment,text,active) VALUES (:page,NOW(),:comment,:text,1)");
+    $stmt->bindParam("page",$page);
+    $stmt->bindParam("comment",$comment);
+    $stmt->bindParam("text",$text);
+    $res2 = $stmt->execute();
+    closeDB();
+    return $res1 && $res2;
+}
+
+function getAvailablePages() {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("SELECT page FROM Pages GROUP BY page order by page ASC");
+    $stmt->bindParam("page", $page);
+    $stmt->execute();
+    $res = array();
+    while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $res[] = $tmp[page];
+    }
+    closeDB();
+    return $res;    
 }
 
 ?>

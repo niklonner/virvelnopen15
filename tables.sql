@@ -48,6 +48,24 @@ CREATE TABLE `Squads` (
   PRIMARY KEY (`day`,`time`)
 ) CHARSET=utf8 COLLATE=utf8_swedish_ci; 
 
+--
+-- Struktur för tabell `Pages`
+--
+
+CREATE TABLE `Pages` (
+  `page` varchar(40) NOT NULL,
+  `time` DATETIME NOT NULL,
+  `comment` varchar(40),
+  `text` text NOT NULL,
+  `active` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`page`,`time`)
+) CHARSET=utf8 COLLATE=utf8_swedish_ci; 
+
+
+insert into Pages(page,time,comment,text,active) values ('index.php',now(),'initial commit','Välkommen, detta är hemsidan för Gothia Open 2014. Sidan är under uppbyggnad.',1);
+insert into Pages(page,time,comment,text,active) values ('format.php',now(),'initial commit','Formatet kommer att beskrivas här',1);
+insert into Pages(page,time,comment,text,active) values ('contact.php',now(),'inital commit','Kontaktuppgifter...',1);
+
 -- 
 -- Data i tabell `Squads`
 -- 
@@ -116,7 +134,7 @@ select
   p.email as email,
   coalesce(p.hcp,0) as hcp,
   p.phonenumber as phonenumber,
-  pi.turbo as turbo,
+  p.turbo as turbo,
   s.day as day,
   s.time as time,
   s.info as info,
@@ -151,7 +169,7 @@ order by
   s2hcp desc,
   s1hcp desc;
 
--- i would like to have first() here...
+
 create or replace view OrdinaryResults as
 select
   id,
