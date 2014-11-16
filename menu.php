@@ -7,7 +7,7 @@
           </button>
           <?php $current_page = preg_replace('/.*\//','',$_SERVER['PHP_SELF'])?>
 
-          <a class="navbar-brand" href="<?php echo $current_page=="index.php" ? "#" : "index.php"; ?>">Gothia Open 2013</a>
+          <a class="navbar-brand" href="<?php echo $current_page=="index.php" ? "#" : "index.php"; ?>">Gothia Open 2014</a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
