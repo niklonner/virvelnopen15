@@ -758,6 +758,7 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
         // squad exists?
         if (!squadExists($day, $time)) {
             $error["internal"] = true;
+echo "internal 1";
         }
         // squad not full?
         if (squadFull($day,$time)) {
@@ -781,6 +782,7 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
         }
         if (!squadExists($day, $time)) {
             $error["internal"] = true;
+echo "internal 2";
         }
         if (squadFull($day,$time)) {
             $error["squad2full"] = true;
@@ -806,6 +808,7 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
         }
         if (!squadExists($day, $time)) {
             $error["internal"] = true;
+echo "internal 3";
         }
         if (squadFull($day,$time)) {
             $error["squad3full"] = true;
@@ -840,6 +843,7 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
     $stmt->bindParam("email", $email);
     if(!$stmt->execute()) {
         $error["internal"] = true;
+echo "internal 4";
         return $error;
     }
   
@@ -853,6 +857,7 @@ function registerPlayer($firstname, $lastname, $club, $bits_id, $phonenumber, $e
         $stmt->bindParam("time", substr($squad,6,4));
         if (!$stmt->execute()) {
             $error["internal"] = true;
+echo "internal 5";
             return $error;
         }
     }
