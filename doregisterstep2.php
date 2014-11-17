@@ -66,7 +66,7 @@ include 'menu.php';
             <div class="row" style="font-weight:bold">
               <div class="col-md-12" id="res">
                 <p>
-                  <strong>Välj starter (markera/avmarkera genom att klicka). Max tre starter varav max en early bird.</strong>
+                  <strong>Välj starter (markera/avmarkera genom att klicka). Max tre starter.</strong>
                 </p>
               </div>
             </div>

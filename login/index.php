@@ -9,11 +9,9 @@ if (isset($_POST[user]) && isset($_POST[password])) {
   }
 }
 
+include 'header.php';
 ?>
 
-<html>
-<head>
-<title>Gothia Open 2013 Adminsidor</title>
 </head>
 <body>
   <form method="post" action="index.php">

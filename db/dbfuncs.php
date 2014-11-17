@@ -2,7 +2,7 @@
 
 require_once 'globals.php';
 require_once 'validate.php';
-require_once '../Parsedown.php';
+require_once 'Parsedown.php';
 
 $dbh = null;
 $dbhandlers = 0;

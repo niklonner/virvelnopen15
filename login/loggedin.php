@@ -1,9 +1,8 @@
 <?php
 require_once 'checklogin.php';
+
+include 'header.php';
 ?>
-<html>
-<head>
-<title>Gothia Open 2013 Adminsidor</title>
 </head>
 <body>
 <a href="changepage.php">Redigera sidor</a><br/>

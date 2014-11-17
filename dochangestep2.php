@@ -29,7 +29,7 @@ $player = getPlayerInfo($_GET['id']);
     <div class="row">
       <div class="col-md-12">
         <p>
-          Markera dina starter nedan. Max tre starter varav max en early bird.
+          Markera dina starter nedan. Max tre starter.
         </p>      </div>
     </div>
     <div class="row">

@@ -2,6 +2,8 @@
 require_once 'checklogin.php';
 require_once '../db/dbfuncs.php';
 
+include 'header.php';
+
 $changeinprogress = isset($_POST[text]);
 
 if ($changeinprogress) {
@@ -9,9 +11,6 @@ if ($changeinprogress) {
 }
 $pagetext = getPageText($_POST[page]);
 ?>
-<html>
-<head>
-<title>Gothia Open 2014 Adminsidor</title>
 </head>
 <body>
 <a href="changepage.php">Tillbaka</a>

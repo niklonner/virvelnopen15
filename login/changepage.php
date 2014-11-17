@@ -2,10 +2,8 @@
 require_once 'checklogin.php';
 require_once '../db/dbfuncs.php';
 
+include 'header.php';
 ?>
-<html>
-<head>
-<title>Gothia Open 2014 Adminsidor</title>
 </head>
 <body>
 <a href="loggedin.php">Tillbaka</a>

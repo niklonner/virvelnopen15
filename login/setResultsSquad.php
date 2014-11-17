@@ -24,12 +24,10 @@ if (isset($_POST[ids])) {
     $allok = true;
   }
 }
+
+include 'header.php';
 ?>
-<html>
-<head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<meta charset="utf-8"/>
-<title>Gothia Open 2013 Adminsidor</title>
+<title>Gothia Open 2014 Adminsidor</title>
 </head>
 <body>
 <a href="loggedin.php">Tillbaka till startsidan</a><br/>
