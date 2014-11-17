@@ -44,7 +44,7 @@ include 'menu.php';
               <div class="col-md-12">
                 <div class="input-group">
                   <span class="input-group-addon">E-post</span>
-                  <input name="email" id="email" type="text" class="form-control" placeholder="Valfritt, behövs för att ändra/avboka">
+                  <input name="email" id="email" type="email" class="form-control" placeholder="Valfritt, behövs för att ändra/avboka">
                 </div>
               </div>
             </div>
@@ -52,7 +52,7 @@ include 'menu.php';
               <div class="col-md-12">
                 <div class="input-group">
                   <span class="input-group-addon">Upprepa e-post</span>
-                  <input name="email_repeat" id="email_repeat" type="text" class="form-control" placeholder="Upprepa e-postadress">
+                  <input name="email_repeat" id="email_repeat" type="email" class="form-control" placeholder="Upprepa e-postadress">
                 </div>
               </div>
             </div>

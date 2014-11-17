@@ -55,7 +55,7 @@ CREATE TABLE `Squads` (
 CREATE TABLE `Pages` (
   `page` varchar(40) NOT NULL,
   `time` DATETIME NOT NULL,
-  `comment` varchar(40),
+  `comment` varchar(500),
   `text` text NOT NULL,
   `active` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`page`,`time`)
