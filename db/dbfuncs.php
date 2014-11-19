@@ -2,7 +2,7 @@
 
 require_once 'globals.php';
 require_once 'validate.php';
-require_once 'Parsedown.php';
+require_once '__DIR__/../Parsedown.php';
 
 $dbh = null;
 $dbhandlers = 0;
@@ -867,7 +867,7 @@ echo "internal 5";
       }
   
       ob_start();
-      echo "Hej, <br>$namestring är nu anmäld till följande start(er):<br>$squadstring<br>Mvh Team Gothia BC";
+      echo "Hej, <br>$namestring är nu anmäld till följande start(er):<br>$squadstring<br>Mvh BK Virveln";
       $message = ob_get_clean();
       $ret = mail($email, "=?utf-8?B?" . base64_encode($globMailTag . "Tack för din anmälan") . "?=",$message, $globMailHeader);
 /*      if ($ret != TRUE) {
@@ -1031,7 +1031,7 @@ EOT;
     <a href="$link">$link</a>.<br/><br/>
 
     Med vänliga hälsningar,<br/>
-    Team Gothia BC
+    BK Virveln
 EOT;
 
     $message = ob_get_clean(); 
@@ -1217,7 +1217,7 @@ function changeSquads($id, $squads) {
     }
 
     echo "<br/>";
-    echo "Med vänliga hälsningar,<br/>Team Gothia BC";
+    echo "Med vänliga hälsningar,<br/>BK Virveln";
 
     $message = ob_get_clean();
     mail($player['email'], "=?utf-8?B?" . base64_encode($globMailTag . "Ändringar genomförda") . "?=", $message, $globMailHeader);

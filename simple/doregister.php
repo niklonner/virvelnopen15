@@ -50,7 +50,7 @@ EOT;
 
 echo "</table><table>";
 for ($i=1;$i<=3;$i++) {
-  echo "<tr><td>Start $i:</td><td><select name=\"squad$i\"><option value=\"none\">Välj</option>";
+  echo "<tr><td>Start $i:</td><td><select name=\"squad$i\"><option value=\"none\">Ingen</option>";
   foreach (getSquadInfo() as $squad) {
     $info = utf8_encode($squad[info]);
     $selected = (isset($error) and $squad[day]==substr($_POST["squad$i"],0,6) and $squad[time]==substr($_POST["squad$i"],6,4))

@@ -219,29 +219,6 @@ function update_squads(whatchange) {
       }
     }
   }
-  // special early bird handling (only works for max two eb's)
-  // always consider, except when going to three selected squads
-  if (!(squadcount >= 3 && whatchange==true)) {
-    var earlybird = [];
-    // count squads
-    for (i=0;i<squadarray.length;i++) {
-      if (squadarray[i].isearlybird == true) {
-        var index = earlybird.length>0 ? 1 : 0;
-        earlybird[index] = squadarray[i];
-        earlybird[index].realid = i;
-      }
-    } 
-    // only handle if more than one eb
-    // if one of them is selected
-    if (earlybird.length>1 && (earlybird[0].selected == true || earlybird[1].selected == true)) {
-      var notselected = earlybird[0].selected==true ? 1 : 0;
-      disable_tick_button(buttonarray[notselected].id);
-    } else if (earlybird.length > 1) { // if none is selected
-      for (i = 0;i<earlybird.length;i++) {
-        enable_tick_button(buttonarray[earlybird[i].realid].id);
-      }
-    }
-  }
 }
 </script>
 </body>

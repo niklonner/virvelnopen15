@@ -24,7 +24,7 @@ require_once 'footer.php';
 ?>
 <script src='js/common.js'></script>
 <script>
-$('#options').append(build_panel_button('doregister.php','Jag vill göra en nyanmälan',true,false));
+$('#options').append(build_panel_button('doregister.php','Jag vill anmäla mig',true,false));
 $('#options').append(build_panel_button('dochange.php','Jag vill ändra min anmälan/avanmäla mig',true,false));
 render_custom();
 </script>

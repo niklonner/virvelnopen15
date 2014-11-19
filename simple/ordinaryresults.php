@@ -6,7 +6,7 @@ require_once '../db/dbfuncs.php';
 </head>
 <body>
     <a href="index.php">&lt;&lt; Tillbaka</a>
-  <h1>Totala kvalresultat</h1>
+  <h1>Totala resultat</h1>
   <table>
     <tr>
       <th>Pos.</th>
@@ -21,7 +21,6 @@ require_once '../db/dbfuncs.php';
       <th>Scratch</th>
       <th>Hcp/serie</th>
       <th>Resultat</th>
-      <th>Final?</th>
     </tr>
 <?php
 $squads_by_id = getNumberOfPlayedSquadsPerPlayer();

@@ -9,7 +9,7 @@ include 'menu.php';
 ?>
   
   <div class="container">
-    <strong>Vissa webbläsare kan ha problem med den här sidan. Använda i så fall <a href="simple/index.php">den förenklade sidan</a>.</strong>
+    <strong>Vissa webbläsare kan ha problem med den här sidan. Använd i så fall <a href="simple/index.php">den förenklade sidan</a>.</strong>
 <?php
 
 include 'db/dbfuncs.php';

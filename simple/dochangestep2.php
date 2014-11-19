@@ -55,7 +55,7 @@ if (isset($error)) {
 $playersquads = getPlayerSquads($_POST[id]);
 $squads = getSquadInfo();
 for ($i=1;$i<=3;$i++) {
-  echo "Start $i: <select name=\"squad$i\"><option value='none'>Välj</option>";
+  echo "Start $i: <select name=\"squad$i\"><option value='none'>Ingen</option>";
   foreach ($squads as $squad) {
     $info = utf8_encode($squad[info]);
     if (isset($error)) {
