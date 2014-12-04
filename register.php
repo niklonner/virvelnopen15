@@ -9,6 +9,7 @@ require_once 'menu.php';
 ?>
   
   <div class="container">
+    <script language="javascript">actionifnotokbrowser();</script>
     <h1>Anmälan</h1>
     <div class="row">
       <div class="col-md-4" id="options">

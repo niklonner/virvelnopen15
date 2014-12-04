@@ -9,6 +9,7 @@ include 'menu.php';
 ?>
   
   <div class="container">
+    <script language="javascript">actionifnotokbrowser();</script>
     <h1>Anmälan steg 1</h1>
     <p>
       Börja med att söka fram dig själv nedan (det är kopplat till BITS). OBS att inte alla fält behöver fyllas i för att göra en sökning. 
@@ -69,7 +70,7 @@ include 'menu.php';
           </div>
         </div>
         <p>
-          Om du får problem (exempelvis att sökningen resulterar i noll spelare trots att du skrivit rätt i fälten) kan du försöka använda den <a href="simple/doregister.php">förenklade anmälan</a>. 
+          <strong>Om du är utländsk spelare eller får problem med sökningen, använd istället den <a href="simple/doregister.php">förenklade anmälan</a>. </strong>
         </p>
       </form>
     </p>

@@ -10,6 +10,7 @@ include 'menu.php';
 ?>
   
   <div class="container">
+    <script language="javascript">actionifnotokbrowser();</script>
     <div class="row">
       <div class="col-md-12">
         <h1>Resultat</h1>
@@ -78,16 +79,17 @@ foreach ($squads as $squad) {
     break;
   }
   echo "\$('#squadsdone').append(build_panel_button('showsquad.php?day=$squad[day]&time=$squad[time]','".utf8_encode($squad['info']).
-        " ($squad[count]/$squad[spots] spelare)','".($i%2==1?"#FFFFF":"#EEEEFA")."',true));";
+        " ($squad[count]/$squad[spots] spelare)','".($i%2==1?"#FFFFFF":"#EEEEFA")."',true));";
   $i++;
 }
 for (;$i<count($squads);$i++) {
   $squad = $squads[$i];
   echo "\$('#squadsnotplayed').append(build_panel_button('showsquad.php?day=$squad[day]&time=$squad[time]','".utf8_encode($squad['info']).
-        " ($squad[count]/$squad[spots] spelare)','".($i%2==1?"#FFFFF":"#EEEEFA")."',true));";
+        " ($squad[count]/$squad[spots] spelare)','".($i%2==1?"#FFFFFF":"#EEEEFA")."',true));";
 }
 ?>
 render_custom();
+
 </script>
 </body>
 </html>

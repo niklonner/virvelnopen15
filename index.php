@@ -9,6 +9,7 @@ include 'menu.php';
 ?>
   
   <div class="container">
+    <script language="javascript">actionifnotokbrowser();</script>
     <strong>Vissa webbläsare kan ha problem med den här sidan. Använd i så fall <a href="simple/index.php">den förenklade sidan</a>.</strong>
 <?php
 

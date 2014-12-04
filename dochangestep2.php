@@ -16,6 +16,7 @@ $player = getPlayerInfo($_GET['id']);
 ?>
   
   <div class="container">
+    <script language="javascript">actionifnotokbrowser();</script>
     <div class="row">
       <div class="col-md-12">
         <h1>Ändring/avanmälan steg 2</h1>
@@ -37,11 +38,18 @@ $player = getPlayerInfo($_GET['id']);
 <?php
 $i = 0;
 $i_inactive = 0;
+$playersquads = getPlayerSquads($_GET['id']);
 foreach (getSquadInfo() as $squad) {
+  $chosensquad = false;
+  foreach ($playersquads as $ps) {
+    if ($squad[day]==$ps[day] && $squad[time]==$ps[time]) {
+      $chosensquad = true;
+    }
+  }
   if ($i%2==0) {
     echo "<div class='row'>";
   }
-  if (!(!okStartTime($squad[day],$squad[time]) || squadFull($squad[day],$squad[time]) || squadCancelled($squad[day],$squad[time]))) {
+  if (!(!okStartTime($squad[day],$squad[time]) || (squadFull($squad[day],$squad[time]) && !$chosensquad) || squadCancelled($squad[day],$squad[time]))) {
     $divid = "squad".($i-$i_inactive);
   } else {
     $divid = "inactivesquad".($i_inactive++);
@@ -125,7 +133,15 @@ $i = 0;
 $i_inactive = 0;
 $to_disable = array();
 foreach (getSquadInfo() as $arr) {
-  if (!(!okStartTime($arr[day],$arr[time]) || squadFull($arr[day],$arr[time]) || squadCancelled($arr[day],$arr[time]))) {
+  $chosensquad = false;
+  foreach ($playersquads as $ps) {
+    if ($arr[day]==$ps[day] && $arr[time]==$ps[time]) {
+      $chosensquad = true;
+    }
+  }
+  if (!(!okStartTime($arr[day],$arr[time]) ||
+      (squadFull($arr[day],$arr[time]) && !$chosensquad) ||
+      squadCancelled($arr[day],$arr[time]))) {
     $isearlybird = $arr['earlybird'] == 1 ? "true" : "false";
     echo "buttonarray[$i] = build_panel_button('javascript:handle_squad_click($i);','".utf8_encode($arr['info'])." ($arr[count]/$arr[spots] spelare)','#FFFFFF',false,true);";
     echo <<<EOT
@@ -153,7 +169,7 @@ foreach ($to_disable as $disable) {
   echo "disable_tick_button($disable);";
 }
 $playedsquads = 0;
-foreach (getPlayerSquads($_GET['id']) as $sq) {
+foreach ($playersquads as $sq) {
   if ($sq['done'] == true) {
     $playedsquads++;
     // change glyphicon

@@ -10,6 +10,7 @@ require_once 'menu.php';
 ?>
   
   <div class="container">
+    <script language="javascript">actionifnotokbrowser();</script>
     <div class="row">
       <div class="col-md-12">
         <h1>Ändring/avanmälan steg 1</h1>

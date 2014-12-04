@@ -91,7 +91,7 @@ var glob_button_color_uxoeult = [];
         $(".button-panel").each(function() {
             // main table
             var table = document.createElement("table");
-            table.class = "button-panel-table";
+            table.className = "button-panel-table";
             table.style.width = "100%";
         
             // content td
@@ -134,7 +134,7 @@ var glob_button_color_uxoeult = [];
          a.href = "javascript:;";
          // main table
          var table = document.createElement("table");
-         table.class = "button-panel-table";
+         table.className = "button-panel-table";
          table.style.width = "100%";
         
          // content td

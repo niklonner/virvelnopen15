@@ -11,6 +11,7 @@ include 'menu.php';
 ?>
   
   <div class="container">
+    <script language="javascript">actionifnotokbrowser();</script>
       <form id="player_form" action="doregisterfinal.php" method="post">
         <input type="hidden" name="bits_name" id="bits_name" value="<?php echo $_POST['bits_name'] ?>"/>
         <input type="hidden" name="bits_club" id="bits_club" value="<?php echo $_POST['bits_club'] ?>"/>
