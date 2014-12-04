@@ -43,7 +43,7 @@
 	  if (msieversion9orbelow()) {
 		document.write("<span style=\"color:red\"><strong>Din webbl&auml;sare fungerar ej v&auml;l med den h&auml;r webbsidan. Du rekommenderas att anv&auml;nda den <a href=\"simple/\">f&ouml;renklade versionen</a>.</strong></span>");
 		window.alert("Din webbläsare stöds ej. Du kommer att omdirigeras till den förenklade sidan.");
-		//window.location="simple/";
+		window.location="simple/";
 	  }
 	}
 	</script>
