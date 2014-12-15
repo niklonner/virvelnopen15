@@ -15,4 +15,23 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Gothia Open 2014 förenklad webbsida</title>
     <link href="style.css" rel="stylesheet" type="text/css"/>
-
+<?php
+// if header exists, array with header at [0] and rest at [1]
+// if not, return false
+// header exists if the string starts with [leading whitespace allowed]<hX>[anything]</hX>
+// or more precisely; if it matches the pattern ^\s*<h(\d)>.*?</h\1>
+function getHeaderDelimiter($string) {
+  $matches = array();
+  if (preg_match("/^\\s*<h(\\d)>.*?<\/h\\1>/",$string,$matches)) {
+    $headerend = strlen($matches[0]);
+    $ret = array();
+    //4 and -9 to remove leading and trailing tags
+    $ret[0] = substr($string,4,$headerend-9);
+    $ret[1] = substr($string,$headerend);
+    return $ret;
+  }
+  else {
+    return false;
+  }
+}
+?>

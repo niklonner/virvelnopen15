@@ -1,12 +1,48 @@
 body
 {
-  background-color:#EEFFEE;
-  margin-left:5px;
+  background-color:#A0FFA0;
+  margin-left:15px;
   margin-right:5px;
-  font-family: sans-serif;
+  font-family: "trebuchet ms", helvetica, "sans-serif";
 }
 
 td
 {
   padding-right:10px;
 }
+
+a
+{
+  text-decoration:none;
+}
+
+div.boxcontainer
+{
+  float: left;
+}
+
+div.boxheader, div.boxheaderalt
+{
+  padding: 7px 19px 7px;
+  color: #fff;
+  font-weight:bold;
+  text-transform: uppercase;
+}
+
+div.boxheader
+{
+  background: #6eb800;
+}
+
+div.boxheaderalt
+{
+  background: #5000b8;
+}
+
+div.boxcontent
+{
+  border:1px solid #ccc;
+  padding:15px;
+  background-color:#ffffff;
+}
+

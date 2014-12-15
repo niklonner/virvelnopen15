@@ -1,34 +1,55 @@
 <?php
 require_once 'header.php';
 require_once '../db/dbfuncs.php';
+
 ?>
 
 </head>
 <body>
 
-<p><a href="../index.php">Till vanliga webbsidan</a></p>
+<p><strong style="color:red">OBS du använder den förenklade versionen av sidan.</strong> <a href="../index.php">Till vanliga webbsidan >>></a></p>
 
 <?php
 $textdata =  getPageTextFormatted('index.php');
-echo $textdata['text'];
+echo $textdata[text];
 ?>
 
-<h2>Anmälan</h2>
+<div class="boxcontainer">
+  <div class="boxheader">Anmälan</div>
+  <div class="boxcontent">
 <p>
 <a href="doregister.php">Jag vill anmäla mig</a><br/>
 <a href="dochange.php">Jag vill ändra min anmälan/avanmäla mig</a>
 </p>
+  </div>
+</div>
 
-<h2>Information</h2>
+<div class="boxcontainer">
+  <div class="boxheaderalt">Information</div>
+  <div class="boxcontent">
 <p>
 <a href="format.php">Tävlingsformat</a>
 </p>
+  </div>
+</div>
 
 <?php
 $textdata =  getPageTextFormatted('contact.php');
-echo $textdata['text'];
+$boxcontent = getHeaderDelimiter($textdata[text]);
 ?>
 
+<div class="boxcontainer">
+                            <?php //                        4 and -9 to remove leading and trailing tags  ?>
+  <div class="boxheader"><?php echo $boxcontent != false ? $boxcontent[0] : "Kontakt" ?></div> 
+  <div class="boxcontent">
+<?php
+echo $boxcontent != false ? $boxcontent[1] : $textdata[text];
+?>
+</div>
+
+<div class="boxcontainer">
+  <div class="boxheaderalt">Starter/resultat</div>
+  <div class="boxcontent">
 <h2>Starter/resultat</h2>
 
 <p>
@@ -51,7 +72,8 @@ EOT;
 }
 ?>
 </p>
-
+  </div>
+</div>
 <?php
 require_once 'footer.php';
 ?>
