@@ -44,12 +44,10 @@ EOT;
         <th>Scratch</th>
         <th>Hcp/serie</th>
         <th>Totalt</th>
-        <th>Turbo?</th>
   </tr>
 EOT;
   $pos = 1;
   foreach (getSquadresults($_GET[day],$_GET[time]) as $result) {
-    $turbo = $result[turbo] ? "Ja" : "&nbsp;";
     $reentry = $result[squadnumber] == 1 ? "" : ($result[squadnumber]==2 ? "(R)" : "(R2)");
     echo <<<EOT
     <tr>
@@ -88,9 +86,6 @@ EOT;
       </td>
       <td>
         $result[result]
-      </td>
-      <td>
-        $turbo
       </td>
   </tr>
 EOT;

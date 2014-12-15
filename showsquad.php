@@ -77,10 +77,9 @@ if (!$notplayed) {
   </table>
 EOT;
   $inner_text = "Hcp/serie: $result[hcp]";
-  $inner_text .= "<table width=\"100%\"><tr><th>Start</th><th>Serier (ren slagning)</th><th>Turbo</th><th>Res.</th></tr>";
+  $inner_text .= "<table width=\"100%\"><tr><th>Start</th><th>Serier (ren slagning)</th><th>Res.</th></tr>";
   foreach ($results_by_id[$result[id]] as $squad) {
-    $turbo = $squad[turbo] ? "Ja" : "Nej";
-    $squadstring = substr(utf8_encode($squad[info]),0,3) . "...";
+    $squadstring = substr(utf8_encode($squad[info]),0,12) . "...";
     if (count($results_by_id[$result[id]])>1 && $squad[day] == $_GET[day] && $squad[time] == $_GET[time]) {
       $style = " style=\"font-weight:bold\"";
     } else {
@@ -90,7 +89,6 @@ EOT;
     <tr$style>\
       <td><a href="showsquad.php?day=$squad[day]&time=$squad[time]">$squadstring</a></td>\
       <td>$squad[s1] $squad[s2] $squad[s3] $squad[s4] $squad[s5] $squad[s6]</td>\
-      <td>$turbo</td>\
       <td>$squad[result]</td>\
     </tr>
 EOT;

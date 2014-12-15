@@ -254,7 +254,7 @@ function getNumberOfPlayedSquadsPerPlayer() {
 
 function getOrdinaryResults() {
   $dbh = openDB();
-  $stmt = $dbh->prepare("SELECT *,o.id as id FROM OrdinaryResults o LEFT OUTER JOIN AllFinalists a ON o.id = a.id");
+  $stmt = $dbh->prepare("SELECT * FROM OrdinaryResults");
   $stmt->execute();
   $res = array();
   while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -672,9 +672,9 @@ function toggleSquadVisibility($day,$time,$on) {
     return "ok";
 }
 
-function registerResult($id, $day, $time, $games, $turbo) {
+function registerResult($id, $day, $time, $games) {
     $dbh = openDB();
-    $stmt = $dbh->prepare("UPDATE PlaysIn SET s1 = :s1 , s2 = :s2 , s3 = :s3 , s4 = :s4 , s5 = :s5 , s6 = :s6, turbo = :turbo WHERE id = :id AND day = :day AND time = :time");
+    $stmt = $dbh->prepare("UPDATE PlaysIn SET s1 = :s1 , s2 = :s2 , s3 = :s3 , s4 = :s4 , s5 = :s5 , s6 = :s6 WHERE id = :id AND day = :day AND time = :time");
     $stmt->bindParam("id",$id);
     $stmt->bindParam("day",$day);
     $stmt->bindParam("time",$time);
@@ -684,7 +684,6 @@ function registerResult($id, $day, $time, $games, $turbo) {
     $stmt->bindParam("s4",$games[3]);
     $stmt->bindParam("s5",$games[4]);
     $stmt->bindParam("s6",$games[5]);
-    $stmt->bindParam("turbo",$turbo);
     $res = $stmt->execute();
     closeDB();
     return $res;

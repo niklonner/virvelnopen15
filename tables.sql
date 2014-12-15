@@ -17,7 +17,7 @@ CREATE TABLE `Players` (
 
 -- 
 -- Struktur för tabell `PlaysIn`
--- 
+-- note: `chansen will not be used`
 
 CREATE TABLE `PlaysIn` (
   `id` int(4) NOT NULL,
@@ -134,7 +134,6 @@ select
   p.email as email,
   coalesce(p.hcp,0) as hcp,
   p.phonenumber as phonenumber,
-  p.turbo as turbo,
   s.day as day,
   s.time as time,
   s.info as info,
@@ -189,7 +188,6 @@ select
   CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s4 AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s4,
   CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s5 AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s5,
   CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s6 AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s6,
-  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(turbo AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as turbo,
   CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s1hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s1hcp,
   CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s2hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s2hcp,
   CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s3hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s3hcp,

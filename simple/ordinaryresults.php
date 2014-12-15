@@ -28,21 +28,6 @@ $i = 1;
 foreach (getOrdinaryResults() as $result) {
   $squadnum = $squads_by_id[$result[id]];
   $reentry = $squadnum == 1 ? "" : ($squadnum == 2 ? "(R)" :"(R2)");
-  $in_finals = "";
-  switch($result[way]) {
-    case "ordinary":
-      $in_finals = "Ja";
-      break;
-    case "turbo5":
-      $in_finals = "Ja, via Turbo 5";
-      break;
-    case "turbo6":
-      $in_finals = "Ja, via Turbo 6";
-      break;
-    case "earlybird":
-      $in_finals = "Ja, via Early Bird";
-      break;
-  }
   echo <<<EOT
 <tr>
   <td>$i.</td>
@@ -57,7 +42,6 @@ foreach (getOrdinaryResults() as $result) {
   <td>$result[scratch]</td>
   <td>$result[hcp]</td>
   <td>$result[result]</td>
-  <td><strong>$in_finals</strong></td>
 </tr>
 EOT;
   $i++;

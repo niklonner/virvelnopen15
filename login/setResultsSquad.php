@@ -13,7 +13,7 @@ if (isset($_POST[ids])) {
   foreach ($ids as $id) {
     // TODO setPlayerResults
     $resultsarr = array($_POST["s1_$id"],$_POST["s2_$id"],$_POST["s3_$id"],$_POST["s4_$id"],$_POST["s5_$id"],$_POST["s6_$id"]);
-    $res = registerResult($id,$day,$time,$resultsarr,$_POST["turbo_$id"] == "on");
+    $res = registerResult($id,$day,$time,$resultsarr);
     if (!$res) {
       $err[] = $id;
     }
@@ -82,9 +82,6 @@ if ($allok) {
     <th>
       Resultat
     </th>
-    <th>
-      Turbo?
-    </th>
   </tr>
 <?php
   $ids_string = "";
@@ -98,7 +95,6 @@ if ($allok) {
         $result += $game+$player[hcp];
       }
     }
-    $turbo = $player[turbo] == true ? "checked=\"checked\"" : "";
     $ids_string .= $player[id] . ",";
     echo <<<EOT
     <tr>
@@ -137,9 +133,6 @@ if ($allok) {
       </td>
       <td>
         $result
-      </td>
-      <td>
-        <input type="checkbox" name="turbo_$player[id]" value="on" $turbo/>
       </td>
     </tr>
 EOT;

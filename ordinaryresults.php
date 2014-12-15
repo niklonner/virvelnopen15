@@ -44,52 +44,26 @@ $i=1;
 $squads_by_id = getNumberOfPlayedSquadsPerPlayer();
 $results_by_id = getRawResultsSortedByPlayer();
 foreach (getOrdinaryResults() as $result) {
-  if (!is_null($result[way])) {
-    $in_final = "<span style=\"color:#ff5555\"><strong>Final</strong></span>";
-  } else {
-    $in_final = "";
-  }
   $numsquads = $squads_by_id[$result[id]];
   $reentry = $numsquads == 1 ? "" : ($numsquads==2 ? " (R)" : " (R2)");
   $outer_text = <<<EOT
   <table width="100%"> \
     <tr> \
       <td style="width:10%">$i.</td> \
-      <td style="width:60%"><strong>$result[lastname]$reentry</strong> ($result[hcp])<br/>$result[club]</td> \
-      <td style="width:15%;text-align:center">$in_final</td> \
+      <td style="width:75%"><strong>$result[lastname]$reentry</strong> ($result[hcp])<br/>$result[club]</td> \
       <td style="width:15%;text-align:right"><strong>$result[result]</strong></td> \
     </tr> \
   </table>
 EOT;
-  if (!is_null($result[way])) {
-    switch($result[way]) {
-    case 'ordinary':
-      $inner_text = "Kvalificerad för final via ordinarie kval";
-      break;
-    case 'turbo5':
-      $inner_text = "Kvalificerad för final via Turbo serie 5";
-      break;
-    case 'turbo6':
-      $inner_text = "Kvalificerad för final via Turbo serie 6";
-      break;
-    case 'earlybird':
-      $inner_text = "Kvalificerad för final via Early Bird";
-      break;
-    }
-  } else {
-    $inner_text = "Ej kvalificerad för final";
-  }
-  $inner_text = "<strong>$inner_text</strong><br/>";
+  $inner_text = "";
   $inner_text .= "Hcp/serie: $result[hcp]";
-  $inner_text .= "<table width=\"100%\"><tr><th>Start</th><th>Serier (ren slagning)</th><th>Turbo</th><th>Res.</th></tr>";
+  $inner_text .= "<table width=\"100%\"><tr><th>Start</th><th>Serier (ren slagning)</th><th>Res.</th></tr>";
   foreach ($results_by_id[$result[id]] as $squad) {
-    $turbo = $squad[turbo] ? "Ja" : "Nej";
-    $squadstring = substr(utf8_encode($squad[info]),0,3) . "...";
+    $squadstring = substr(utf8_encode($squad[info]),0,12) . "...";
     $inner_text .= <<<EOT
     <tr>\
       <td><a href="showsquad.php?day=$squad[day]&time=$squad[time]">$squadstring</a></td>\
       <td>$squad[s1] $squad[s2] $squad[s3] $squad[s4] $squad[s5] $squad[s6]</td>\
-      <td>$turbo</td>\
       <td>$squad[result]</td>\
     </tr>
 EOT;
