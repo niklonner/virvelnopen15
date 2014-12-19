@@ -131,6 +131,22 @@ function setPlayerDetails($id,$lastname,$club,$bitsid,$hcp) {
   return $res;
 }
 
+// set player details
+function setPlayerDetails2($id,$lastname,$club,$bitsid,$hcp,$phonenumber,$email) {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("UPDATE Players SET lastname=:lastname, bitsid=:bitsid, club=:club, hcp=:hcp, phonenumber=:phonenumber, email=:email WHERE id=:id");
+  $stmt->bindParam("lastname",$lastname);
+  $stmt->bindParam("bitsid",$bitsid);
+  $stmt->bindParam("club",$club);
+  $stmt->bindParam("hcp",$hcp);
+  $stmt->bindParam("id",$id);
+  $stmt->bindParam("phonenumber",$phonenumber);
+  $stmt->bindParam("email",$email);
+  $res = $stmt->execute();
+  closeDB();
+  return $res;
+}
+
 // get players in squad
 function getSquadPlayers($day, $time) {
     $dbh = openDB();
@@ -1044,6 +1060,10 @@ EOT;
  
     // return ok
     return "ok";
+}
+
+function setPlayerSquadsUnchecked($id,$squads) {
+  return var_dump($squads);
 }
 
 function changeSquads($id, $squads) {

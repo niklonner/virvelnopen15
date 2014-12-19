@@ -9,7 +9,7 @@ if (isset($_POST[ids])) {
   // för varje id, spara ändring
   openDB();
   foreach ($ids as $id) {
-    $res = setPlayerDetails($id,$_POST["lastname_$id"],$_POST["club_$id"],$_POST["bitsid_$id"],$_POST["hcp_$id"]);
+    $res = setPlayerDetails2($id,$_POST["lastname_$id"],$_POST["club_$id"],$_POST["bitsid_$id"],$_POST["hcp_$id"],$_POST["phonenumber_$id"],$_POST["email_$id"]);
     if (!$res) {
       $err[] = $id;
     }
@@ -26,7 +26,7 @@ include 'header.php';
 </head>
 <body>
 <a href="loggedin.php">Tillbaka till startsidan</a><br/>
-<form method="post" action="setTurboAndMoreSquad.php">
+<form method="post" action="<?php echo $_SERVER[PHP_SELF]?>">
 <h2><?php echo utf8_encode(getSquadInfoLine($day,$time));?></h2>
 <?php
 if ($allok) {
@@ -62,6 +62,9 @@ if ($allok) {
     <th>
       E-post
     </th>
+    <th>
+      &nbsp;
+    </th>
   </tr>
 <?php
   $ids_string = "";
@@ -73,7 +76,7 @@ if ($allok) {
         $player[id]
       </td>
       <td>
-        <input type="text" name="bitsid_$player[id]" value="$player[bitsid]"/>
+        <input type="text" name="bitsid_$player[id]" value="$player[bitsid]" size="12"/>
       </td>
       <td>
         <input type="text" name="lastname_$player[id]" value="$player[lastname]"/>
@@ -85,10 +88,13 @@ if ($allok) {
         <input type="text" name="hcp_$player[id]" value="$player[hcp]" size="2"/>
       </td>
       <td>
-        $player[phonenumber]
+        <input type="text" name="phonenumber_$player[id]" value="$player[phonenumber]" size="12"/>
       </td>
       <td>
-        $player[email]
+        <input type="text" name="email_$player[id]" value="$player[email]"/>
+      </td>
+      <td>
+        <a href="handlePlayer.php?id=$player[id]">Ändra/ta bort starter</a>
       </td>
     </tr>
 EOT;
