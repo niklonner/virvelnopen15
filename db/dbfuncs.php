@@ -1063,7 +1063,69 @@ EOT;
 }
 
 function setPlayerSquadsUnchecked($id,$squads) {
-  return var_dump($squads);
+  // fix the format of squads
+  foreach ($squads as $k => $s) {
+    if ($s == "none") {
+      unset($squads[$k]);
+    } else {
+      $squads[$k] = array(day => substr($s,0,6), time => substr($s,6,4));
+    }
+  }
+  $dbh = openDB();
+  //get old squads
+  $oldsquads = getPlayerSquads($id);
+  //for each old squad s
+  foreach ($oldsquads as $k => $oldsquad) {
+    //  if s is in new squads
+    foreach($squads as $j => $squad) {
+      if ($oldsquad['day']==$squad['day'] && $oldsquad['time']==$squad['time']) {
+        // delete s from new and old squads
+        unset($oldsquads[$k]);
+        unset($squads[$j]);
+      }
+    }
+  }
+
+  //now, old squads = squads to remove player from
+  $removesquads = $oldsquads;
+  //and new squads = squads to add player to
+  $newsquads = $squads;
+
+  //foreach new squads s, add player to s
+  foreach ($newsquads as $regsquad) {
+    $stmt = $dbh->prepare("INSERT into PlaysIn (day,time,id) VALUES (:day,:time,:id)");
+    $stmt->bindParam("day",$regsquad['day']);
+    $stmt->bindParam("time",$regsquad['time']);
+    $stmt->bindParam("id",$id);
+    $ok = $stmt->execute();
+    if (!$ok) {
+      $error['internal'] = true;
+    }
+  }
+
+  if (isset($error)) {
+    return $error;
+  }
+
+  //foreach old squad s, remove player from s
+  foreach ($oldsquads as $chosensquad) {
+    $day = $chosensquad['day'];
+    $time = $chosensquad['time'];
+    $stmt = $dbh->prepare("DELETE FROM PlaysIn WHERE id=:id AND day=:day AND time=:time");
+    $stmt->bindParam("id",$id);
+    $stmt->bindParam("day",$day);
+    $stmt->bindParam("time",$time);
+    $ok = $stmt->execute();
+    if (!$ok) {
+      $error['internal'] = true;
+    }
+  }
+
+  if (isset($error)) {
+    return $error;
+  }
+
+  return "ok";
 }
 
 function changeSquads($id, $squads) {
