@@ -76,6 +76,53 @@ function registeredForSquad($id, $day, $time) {
     return $res[0]>0;
 }
 
+function getSquadInformation($day,$time) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("SELECT * FROM Squads WHERE day=:day AND time=:time");
+    $stmt->bindParam("day", $day);
+    $stmt->bindParam("time", $time);
+    $stmt->execute();
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    closeDB();
+    return $res;
+}
+
+function setSquad($day,$time,$info,$spots,$cancelled) {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("UPDATE Squads SET info=:info, spots=:spots, cancelled=:cancelled WHERE day=:day AND time=:time");
+  $stmt->bindParam("day",$day);
+  $stmt->bindParam("time",$time);
+  $stmt->bindParam("info",$info);
+  $stmt->bindParam("spots",$spots);
+  $stmt->bindParam("cancelled",$cancelled);
+  $res = $stmt->execute();
+  closeDB();
+  return $res;
+}
+
+function removeSquad($day,$time) {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("DELETE FROM Squads WHERE day=:day AND time=:time");
+  $stmt->bindParam("day",$day);
+  $stmt->bindParam("time",$time);
+  $res = $stmt->execute();
+  closeDB();
+  return $res;
+}
+
+function insertSquad($day,$time,$info,$spots) {
+echo "$day $time $info $spots";
+  $dbh = openDB();
+  $stmt = $dbh->prepare("INSERT INTO Squads (day,time,info,spots) VALUES (:day,:time,:info,:spots)");
+  $stmt->bindParam("day",$day);
+  $stmt->bindParam("time",$time);
+  $stmt->bindParam("info",$info);
+  $stmt->bindParam("spots",$spots);
+  $res = $stmt->execute();
+  closeDB();
+  return $res;
+}
+
 function squadCancelled($day,$time) {
     $dbh = openDB();
     $stmt = $dbh->prepare("SELECT cancelled FROM Squads WHERE day=:day AND time=:time");
