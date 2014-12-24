@@ -270,7 +270,7 @@ function getNumberOfPlayedSquadsPerPlayer() {
 
 function getOrdinaryResults() {
   $dbh = openDB();
-  $stmt = $dbh->prepare("SELECT * FROM OrdinaryResults");
+  $stmt = $dbh->prepare("SELECT * FROM OrdinaryResults ORDER BY   result desc,  LEAST(300,s6+hcp) desc, LEAST(300,s5+hcp) desc,  LEAST(300,s4+hcp) desc,  LEAST(300,s3+hcp) desc, LEAST(300,s2+hcp) desc,  LEAST(300,s1+hcp) desc;");
   $stmt->execute();
   $res = array();
   while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
