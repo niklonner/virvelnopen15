@@ -23,12 +23,12 @@ foreach (getAllPlayersWithSquads() as $player) {
         $player['lastname'] : $player['firstname'] . " ". $player['lastname'];
     $player_object['club'] = $player['club'];
     $squads = array();
-    $squads[] = array("day" => $player['day'], "time" => $player['time'], "info" => utf8_encode($player['info']));
+    $squads[] = array("day" => $player['day'], "time" => $player['time'], "info" => $player['info']);
     $player_object['squads'] = $squads;
     $players[] = $player_object;
   } else {
     $players[count($players)-1]['squads'][] =
-        array("day" => $player['day'], "time" => $player['time'], "info" => utf8_encode($player['info']));
+        array("day" => $player['day'], "time" => $player['time'], "info" => $player['info']);
   }
   $previd = $player['id'];
 }

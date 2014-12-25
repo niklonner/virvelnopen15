@@ -41,7 +41,7 @@ EOT;
           echo "<p>Du är nu anmäld till följande starter:</p><p>";
           $squads = getPlayerSquads($_GET['id']);
           foreach ($squads as $sq) {
-            echo utf8_encode(getSquadInfoLine($sq['day'],$sq['time'])) . "<br/>";
+            echo getSquadInfoLine($sq['day'],$sq['time']) . "<br/>";
           }
           echo "</p>";
         }

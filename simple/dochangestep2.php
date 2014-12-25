@@ -57,7 +57,7 @@ $squads = getSquadInfo();
 for ($i=1;$i<=3;$i++) {
   echo "Start $i: <select name=\"squad$i\"><option value='none'>Ingen</option>";
   foreach ($squads as $squad) {
-    $info = utf8_encode($squad[info]);
+    $info = $squad[info];
     if (isset($error)) {
       $selected = $squad[day] == substr($_POST["squad$i"],0,6) && $squad[time] == substr($_POST["squad$i"],6,4) ? " selected=\"selected\"" : "";
     } else {

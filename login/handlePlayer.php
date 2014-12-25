@@ -45,7 +45,7 @@ $squads = getSquadInfo();
 for ($i=1;$i<=3;$i++) {
   echo "Start $i: <select name=\"squad$i\"><option value='none'>Ingen</option>";
   foreach ($squads as $squad) {
-    $info = utf8_encode($squad[info]);
+    $info = $squad[info];
     $selected = $squad[day] == $playersquads[$i-1][day] && $squad[time] == $playersquads[$i-1][time] ? " selected=\"selected\"" : "";
     echo <<<EOT
     <option value="$squad[day]$squad[time]" $selected>$info ($squad[count]/$squad[spots] spelare)</option>

@@ -78,13 +78,13 @@ foreach ($squads as $squad) {
   if ($squad[done] != true && $squad[cancelled] != true) {
     break;
   }
-  echo "\$('#squadsdone').append(build_panel_button('showsquad.php?day=$squad[day]&time=$squad[time]','".utf8_encode($squad['info']).
+  echo "\$('#squadsdone').append(build_panel_button('showsquad.php?day=$squad[day]&time=$squad[time]','".$squad['info').
         " ($squad[count]/$squad[spots] spelare)','".($i%2==1?"#FFFFFF":"#EEEEFA")."',true));";
   $i++;
 }
 for (;$i<count($squads);$i++) {
   $squad = $squads[$i];
-  echo "\$('#squadsnotplayed').append(build_panel_button('showsquad.php?day=$squad[day]&time=$squad[time]','".utf8_encode($squad['info']).
+  echo "\$('#squadsnotplayed').append(build_panel_button('showsquad.php?day=$squad[day]&time=$squad[time]','".$squad['info'].
         " ($squad[count]/$squad[spots] spelare)','".($i%2==1?"#FFFFFF":"#EEEEFA")."',true));";
 }
 ?>

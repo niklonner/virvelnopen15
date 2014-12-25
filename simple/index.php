@@ -61,7 +61,7 @@ echo $boxcontent != false ? $boxcontent[1] : $textdata[text];
 <?php
 $squads = getSquadInfo();
 foreach ($squads as $sq) {
-  $info = utf8_encode($sq[info]);
+  $info = $sq[info];
   echo <<<EOT
     <a href="showsquad.php?day=$sq[day]&time=$sq[time]">$info ($sq[count]/$sq[spots] spelare)</a><br/>
 EOT;

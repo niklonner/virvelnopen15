@@ -143,7 +143,7 @@ foreach (getSquadInfo() as $arr) {
       (squadFull($arr[day],$arr[time]) && !$chosensquad) ||
       squadCancelled($arr[day],$arr[time]))) {
     $isearlybird = $arr['earlybird'] == 1 ? "true" : "false";
-    echo "buttonarray[$i] = build_panel_button('javascript:handle_squad_click($i);','".utf8_encode($arr['info'])." ($arr[count]/$arr[spots] spelare)','#FFFFFF',false,true);";
+    echo "buttonarray[$i] = build_panel_button('javascript:handle_squad_click($i);','".$arr['info']." ($arr[count]/$arr[spots] spelare)','#FFFFFF',false,true);";
     echo <<<EOT
     $('#squad$i').append(buttonarray[$i]);
     squadarray[$i] = {};
@@ -154,7 +154,7 @@ EOT;
     $squadidtoindex[$arr['day'].$arr['time']] = $i;
     $i++;
   } else {
-    $info = utf8_encode($arr['info']);
+    $info = $arr['info'];
     echo <<<EOT
     var inactivebutton$i_inactive = build_panel_button('javascript:;','$info ($arr[count]/$arr[spots] spelare)','#FFFFFF',false,true);
     $('#inactivesquad$i_inactive').append(inactivebutton$i_inactive);

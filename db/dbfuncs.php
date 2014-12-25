@@ -916,11 +916,11 @@ echo "internal 5";
     mail($globMailReceivers, $globMailTag . "New registration",$message, $globMailHeader);
 
     if ($email != '' && isset($email)) {
-      $squadstring = utf8_encode(getSquadInfoLine(substr($squad1,0,6),substr($squad1,6.4)))."<br>";
+      $squadstring = getSquadInfoLine(substr($squad1,0,6),substr($squad1,6.4))."<br>";
       if ($squad2!='none')
-        $squadstring .= utf8_encode(getSquadInfoLine(substr($squad2,0,6),substr($squad2,6.4)))."<br>";
+        $squadstring .= getSquadInfoLine(substr($squad2,0,6),substr($squad2,6.4))."<br>";
       if ($squad3!='none')
-        $squadstring .= utf8_encode(getSquadInfoLine(substr($squad3,0,6),substr($squad3,6.4)))."<br>";
+        $squadstring .= getSquadInfoLine(substr($squad3,0,6),substr($squad3,6.4))."<br>";
     
       if ($firstname != '' && isset($firstname)) {
         $namestring = "$firstname $lastname";
@@ -1082,7 +1082,7 @@ function checkOkToChangeSquads($id, $squads) {
     } else {
       echo "Du har begärt ändring av dina starter. Du vill spela följande starter:<br/>";
       foreach ($squads as $sq) {
-        echo utf8_encode(getSquadInfoLine(substr($sq,0,6),substr($sq,6,4))) . "<br/>";
+        echo getSquadInfoLine(substr($sq,0,6),substr($sq,6,4)) . "<br/>";
       }
 
     }
@@ -1340,7 +1340,7 @@ function changeSquads($id, $squads) {
       echo "Du är nu anmäld till följande starter:<br/>";
       $squads = getPlayerSquads($id);
       foreach ($squads as $sq) {
-        echo utf8_encode(getSquadInfoLine($sq['day'],$sq['time'])) . "<br/>";
+        echo getSquadInfoLine($sq['day'],$sq['time']) . "<br/>";
       }
     }
 

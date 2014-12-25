@@ -20,7 +20,7 @@ EOT;
     if ($squad != "none") {
       $day = substr($squad,0,6);
       $time = substr($squad,6,4);
-      echo "<li>" . utf8_encode(getSquadInfoLine($day,$time)) . "</li>";
+      echo "<li>" . getSquadInfoLine($day,$time) . "</li>";
     }
   }
   echo "</ul>";

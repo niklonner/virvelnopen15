@@ -12,7 +12,7 @@ include 'header.php';
     <select name="squad">
       <?php
         foreach (getSquadInfo() as $squad) {
-          echo "<option value='$squad[day]$squad[time]'>". utf8_encode($squad[info]) ."</option>";
+          echo "<option value='$squad[day]$squad[time]'>". $squad[info] ."</option>";
         }
       ?>
     </select>

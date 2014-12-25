@@ -12,7 +12,7 @@ include 'menu.php';
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-        <h1><?php echo utf8_encode(getSquadInfoLine($_GET['day'],$_GET['time'])) ?></h1>
+        <h1><?php echo getSquadInfoLine($_GET['day'],$_GET['time']) ?></h1>
       </div>
     </div>
     <div class="row">
@@ -79,7 +79,7 @@ EOT;
   $inner_text = "Hcp/serie: $result[hcp]";
   $inner_text .= "<table width=\"100%\"><tr><th>Start</th><th>Serier (ren slagning)</th><th>Res.</th></tr>";
   foreach ($results_by_id[$result[id]] as $squad) {
-    $squadstring = substr(utf8_encode($squad[info]),0,12) . "...";
+    $squadstring = substr($squad[info],0,12) . "...";
     if (count($results_by_id[$result[id]])>1 && $squad[day] == $_GET[day] && $squad[time] == $_GET[time]) {
       $style = " style=\"font-weight:bold\"";
     } else {

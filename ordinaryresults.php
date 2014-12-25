@@ -59,7 +59,7 @@ EOT;
   $inner_text .= "Hcp/serie: $result[hcp]";
   $inner_text .= "<table width=\"100%\"><tr><th>Start</th><th>Serier (ren slagning)</th><th>Res.</th></tr>";
   foreach ($results_by_id[$result[id]] as $squad) {
-    $squadstring = substr(utf8_encode($squad[info]),0,12) . "...";
+    $squadstring = substr($squad[info],0,12) . "...";
     $inner_text .= <<<EOT
     <tr>\
       <td><a href="showsquad.php?day=$squad[day]&time=$squad[time]">$squadstring</a></td>\

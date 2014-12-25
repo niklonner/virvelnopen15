@@ -7,7 +7,7 @@ require_once '../db/dbfuncs.php';
 <body>
 <a href="index.php">&lt;&lt; Tillbaka</a>
 <?php
-echo "<h1>".utf8_encode(getSquadInfoLine($_GET[day],$_GET[time]))."</h1>";
+echo "<h1>".getSquadInfoLine($_GET[day],$_GET[time])."</h1>";
 if (okStartTime($_GET[day],$_GET[time])) {
   $players = getSquadPlayers($_GET[day],$_GET[time]);
   if (count($players) == 0) {

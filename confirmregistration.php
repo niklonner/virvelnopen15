@@ -25,13 +25,13 @@ echo <<<EOT
          $name, $club är nu anmäld till följande start(er):<br/>
 EOT;
   if ($squad1 != "none") {
-    echo utf8_encode($squad1) . "<br/>";
+    echo $squad1 . "<br/>";
   }
   if ($squad2 != "none") {
-    echo utf8_encode($squad2) . "<br/>";
+    echo $squad2 . "<br/>";
   }
   if ($squad3 != "none") {
-    echo utf8_encode($squad3) . "<br/>";
+    echo $squad3 . "<br/>";
   }
 } else {
   echo <<<EOT

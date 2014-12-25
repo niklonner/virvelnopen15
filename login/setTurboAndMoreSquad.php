@@ -27,7 +27,7 @@ include 'header.php';
 <body>
 <a href="loggedin.php">Tillbaka till startsidan</a><br/>
 <form method="post" action="setTurboAndMoreSquad.php">
-<h2><?php echo utf8_encode(getSquadInfoLine($day,$time));?></h2>
+<h2><?php echo getSquadInfoLine($day,$time);?></h2>
 <?php
 if ($allok) {
   echo "<span style='color:#ff0000'>Sparades " . date("Y-m-d H:i:s") . "</span><br/>";
