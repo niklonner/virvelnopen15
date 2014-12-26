@@ -78,7 +78,7 @@ foreach ($squads as $squad) {
   if ($squad[done] != true && $squad[cancelled] != true) {
     break;
   }
-  echo "\$('#squadsdone').append(build_panel_button('showsquad.php?day=$squad[day]&time=$squad[time]','".$squad['info').
+  echo "\$('#squadsdone').append(build_panel_button('showsquad.php?day=$squad[day]&time=$squad[time]','".$squad['info'].
         " ($squad[count]/$squad[spots] spelare)','".($i%2==1?"#FFFFFF":"#EEEEFA")."',true));";
   $i++;
 }
