@@ -13,7 +13,7 @@
     <meta name="keywords" content="" />
     <meta name="description" content="" />
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>Gothia Open 2014 förenklad webbsida</title>
+    <title>Virveln Open 2015 förenklad webbsida</title>
     <link href="style.css" rel="stylesheet" type="text/css"/>
 <?php
 // if header exists, array with header at [0] and rest at [1]
