@@ -1,8 +1,8 @@
 <?php
 
-require_once 'globals.php';
-require_once 'validate.php';
-require_once '__DIR__/../Parsedown.php';
+require_once dirname(__FILE__) . '/globals.php';
+require_once dirname(__FILE__) . '/validate.php';
+require_once dirname(__FILE__) . '/../Parsedown.php';
 
 $dbh = null;
 $dbhandlers = 0;
