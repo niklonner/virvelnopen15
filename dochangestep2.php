@@ -105,7 +105,7 @@ function doregister() {
     },
     function(data) {
       var arr = data.split("__linebreak");
-      if (arr[0] == "ok") {
+      if (arr[0].trim() == "ok") {
         window.location.href = "confirmchangerequest.php?" + arr[1];
       } else {
         $('#submitbutton').html("Begär ändring!");

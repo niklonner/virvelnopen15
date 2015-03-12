@@ -40,16 +40,7 @@ include 'menu.php';
 
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="input-group">
-              <span class="input-group-addon">Klubb</span>
-              <input name="club" id="club" type="text" class="form-control bits-search-field" placeholder="Klubb">
-            </div>
-          </div>
-          <div class="col-md-8">
-          </div>
-        </div>
+
 <!--        <div class="row">
           <div class="col-md-4">
             <div class="input-group">
@@ -101,7 +92,6 @@ $(document).ready(function(){
             {
                     firstname: document.getElementById("firstname").value,
                     lastname: document.getElementById("lastname").value,
-                    club: document.getElementById("club").value,
                     licens_number: ""
             },
             function(data) {

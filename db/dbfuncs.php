@@ -899,8 +899,10 @@ echo "internal 4";
     foreach ($squads as $squad) {
         $stmt = $dbh->prepare("INSERT INTO PlaysIn (id, day, time) VALUES (:id, :day, :time)");
         $stmt->bindParam("id", $id);
-        $stmt->bindParam("day", substr($squad,0,6));
-        $stmt->bindParam("time", substr($squad,6,4));
+        $dummya = substr($squad,0,6); // why do I need this?
+        $dummyb = substr($squad,6,4); // why do I need this?
+        $stmt->bindParam("day", $dummya);
+        $stmt->bindParam("time", $dummyb);
         if (!$stmt->execute()) {
             $error["internal"] = true;
 echo "internal 5";
