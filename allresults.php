@@ -14,6 +14,9 @@ include 'menu.php';
     <div class="row">
       <div class="col-md-12">
         <h1>Resultat</h1>
+		<p style="font-weight:bold;color:red">
+		  På grund av "resursbrist" - d.v.s. vår stiliga webbutvecklare har ont om tid att jobba gratis - kommer endast resultatvyn nedan att vara tillgänglig under första helgen. Senare tillkommer vyer för early bird, damer och juniorer.
+		</p>
       </div>
     </div>
     <div class="row">

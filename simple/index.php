@@ -51,7 +51,9 @@ echo $boxcontent != false ? $boxcontent[1] : $textdata[text];
   <div class="boxheaderalt">Starter/resultat</div>
   <div class="boxcontent">
 <h2>Starter/resultat</h2>
-
+  <p style="font-weight:bold;color:red;max-width:400px">
+    På grund av "resursbrist" - d.v.s. vår stiliga webbutvecklare har ont om tid att jobba gratis - kommer endast resultatvyn nedan att vara tillgänglig under första helgen. Senare tillkommer vyer för early bird, damer och juniorer.
+  </p>
 <p>
   <a href="ordinaryresults.php">Alla resultat >>></a><br/>
 <br/>
