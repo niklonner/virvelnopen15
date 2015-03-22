@@ -18,7 +18,9 @@ require_once 'menu.php';
     <div class="row">
       <div class="col-md-5">
         <p>
-          Klicka på ett resultat för att se detaljer.
+          Klicka på ett resultat för att se detaljer.<br/>
+          <span style="color:red;font-weight:bold">(D) = dam</span><br/>
+          <span style="color:green;font-weight:bold">(J) = junior</span>
         </p>
       </div>
       <div class="col-md-7">
@@ -43,14 +45,28 @@ require_once 'footer.php';
 $i=1;
 $squads_by_id = getNumberOfPlayedSquadsPerPlayer();
 $results_by_id = getRawResultsSortedByPlayer();
-foreach (getOrdinaryResults() as $result) {
+$earlybirdcounter = 1;
+foreach (getCompleteResults() as $result) {
+  if ($i==17) {
+    //draw separator
+    echo "$('#results').append('<div style=\"background-color:red\">&nbsp;</div>');";
+  }
   $numsquads = $squads_by_id[$result[id]];
   $reentry = $numsquads == 1 ? "" : ($numsquads==2 ? " (R)" : " (R2)");
+  $femalestring = $result[isfemale] ? " <span style=\"color:red\">(D)</span>" : "";
+  $juniorstring = $result[isjunior] ? " <span style=\"color:green\">(J)</span>" : "";
+  $finalsstring = $i>=17 && $result[infinals] ?
+    ($result[way]=="junior" ? "<span style=\"color:green\">Bästa junior</span>" : 
+      ($result[way]=="female" ? "<span style=\"color:red\">Bästa dam</span>" : 
+        ($result[way]=="earlybird" ? "<span style=\"color:#ff9530\">Early bird ". $earlybirdcounter++."</span>" : "")
+      )
+    ) : "";
   $outer_text = <<<EOT
   <table width="100%"> \
     <tr> \
       <td style="width:10%">$i.</td> \
-      <td style="width:75%"><strong>$result[lastname]$reentry</strong> ($result[hcp])<br/>$result[club]</td> \
+      <td style="width:60%"><strong>$result[lastname]$femalestring$juniorstring$reentry</strong> ($result[hcp])<br/>$result[club]</td> \
+      <td style="width:15%;text-align:center"><strong>$finalsstring</strong></td> \
       <td style="width:15%;text-align:right"><strong>$result[result]</strong></td> \
     </tr> \
   </table>

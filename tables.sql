@@ -172,6 +172,7 @@ order by
 create or replace view OrdinaryResults as
 select
   id,
+  SUBSTRING_INDEX(GROUP_CONCAT(CAST(bitsid AS CHAR)), ',', 1 ) as bitsid,
   SUBSTRING_INDEX(GROUP_CONCAT(CAST(firstname AS CHAR)), ',', 1 ) as firstname,
   SUBSTRING_INDEX(GROUP_CONCAT(CAST(lastname AS CHAR)), ',', 1) as lastname,
   SUBSTRING_INDEX(GROUP_CONCAT(CAST(club AS CHAR)), ',', 1) as club,

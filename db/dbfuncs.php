@@ -327,6 +327,48 @@ function getOrdinaryResults() {
   return $res;
 }
 
+function getCompleteResults() {
+  $results = getOrdinaryResults();
+  $i=1;
+  $juniorspottaken = false;
+  $femalespottaken = false;
+  $earlybirdspotstaken = 0;
+  foreach($results as $index => $result) {
+    //annotate
+    $results[$index][isfemale] = $isfemale = substr($result[bitsid],0,1) == "K";
+    $results[$index][isjunior] = $isjunior = substr($result[bitsid],5,2) >= 94 || substr($result[bitsid],5,2) <= 15;
+    // ordinary finalist?
+    if ($i<=16) {
+      $results[$index][infinals] = true;
+      $results[$index][way] = "ordinary";
+    }
+    // if not, best junior?
+    else if (!$juniorspottaken && $isjunior) {
+      $results[$index][infinals] = true;
+      $results[$index][way] = "junior";
+      $juniorspottaken = true;
+    }
+    // if not, best female?
+    else if (!$femalespottaken && $isfemale) {
+      $results[$index][infinals] = true;
+      $results[$index][way] = "female";
+      $femalespottaken = true;
+    }
+    // if not, IS ANY RESULT one of six best eb's? TODO this counts all results as early bird results
+    else if ($earlybirdspotstaken < 6) {
+      $results[$index][infinals] = true;
+      $results[$index][way] = "earlybird";
+      $earlybirdspotstaken++;
+    }
+    // no finals
+    else {
+      $results[$index][infinals] = false;
+    }
+    $i++;
+  }
+  return $results;
+}
+
 function getBitsReportStep2() {
   $dbh = openDB();
   $stmt = $dbh->prepare("select s.*,p.bitsid, p.id from Step2Results s join Players p on p.id=s.id order by result DESC, tiebreaker DESC, s8hcp DESC, s7hcp desc, s6hcp desc, s5hcp desc, s4hcp desc, s3hcp desc, s2hcp desc,s1hcp desc");
