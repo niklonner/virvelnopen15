@@ -14,9 +14,6 @@ include 'menu.php';
     <div class="row">
       <div class="col-md-12">
         <h1>Resultat</h1>
-		<p style="font-weight:bold;color:red">
-		  På grund av "resursbrist" - d.v.s. vår stiliga webbutvecklare har ont om tid att jobba gratis - kommer endast resultatvyn nedan att vara tillgänglig under första helgen. Senare tillkommer vyer för early bird, damer och juniorer.
-		</p>
       </div>
     </div>
     <div class="row">
@@ -72,7 +69,10 @@ include 'footer.php';
 ?>
 <script src="js/common.js"></script>
 <script>
-$('#combined').append(build_panel_button('ordinaryresults.php','<strong>Resultat</strong>','#FFFFFF',true,false));
+$('#combined').append(build_panel_button('ordinaryresults.php','<strong>Totala kvalresultat</strong>','#FFFFFF',true,false));
+$('#combined').append(build_panel_button('juniorresults.php','<strong>Resultat juniorer</strong>','#FFFFFF',true,false));
+$('#combined').append(build_panel_button('femaleresults.php','<strong>Resultat damer</strong>','#FFFFFF',true,false));
+$('#combined').append(build_panel_button('earlybirdresults.php','<strong>Early Bird-resultat</strong>','#FFFFFF',true,false));
 $('#allplayers').append(build_panel_button('allplayers.php','<strong>Visa samtliga spelare (<?php echo getPlayerCount(); ?> spelare, <?php echo getReentryCount();?> starter)</strong>','#FFFFFF',true,false));
 <?php
 $squads = getSquadInfo();

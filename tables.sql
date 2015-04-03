@@ -48,6 +48,11 @@ CREATE TABLE `Squads` (
   PRIMARY KEY (`day`,`time`)
 ) CHARSET=utf8 COLLATE=utf8_swedish_ci; 
 
+CREATE TABLE `EarlyBirdSquads` (
+  `day` int(6) DEFAULT NULL,
+  `time` int(4) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 --
 -- Struktur för tabell `Pages`
 --
@@ -196,6 +201,43 @@ select
   CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s5hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s5hcp,
   CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s6hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s6hcp
 from ResultsRaw
+group by id
+order by
+  result desc,
+  LEAST(300,s6+hcp) desc,
+  LEAST(300,s5+hcp) desc,
+  LEAST(300,s4+hcp) desc,
+  LEAST(300,s3+hcp) desc,
+  LEAST(300,s2+hcp) desc,
+  LEAST(300,s1+hcp) desc;
+
+create or replace view EarlyBirdResults as
+select
+  id,
+  SUBSTRING_INDEX(GROUP_CONCAT(CAST(bitsid AS CHAR)), ',', 1 ) as bitsid,
+  SUBSTRING_INDEX(GROUP_CONCAT(CAST(firstname AS CHAR)), ',', 1 ) as firstname,
+  SUBSTRING_INDEX(GROUP_CONCAT(CAST(lastname AS CHAR)), ',', 1) as lastname,
+  SUBSTRING_INDEX(GROUP_CONCAT(CAST(club AS CHAR)), ',', 1) as club,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(hcp AS CHAR)), ',', 1) as SIGNED) as hcp,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(r.day AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as day,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(r.time AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as time,
+  SUBSTRING_INDEX(GROUP_CONCAT(CAST(earlybird AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as earlybird,
+  SUBSTRING_INDEX(GROUP_CONCAT(CAST(info AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as info,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(result AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as result,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(scratch AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as scratch,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s1 AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s1,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s2 AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s2,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s3 AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s3,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s4 AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s4,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s5 AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s5,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s6 AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s6,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s1hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s1hcp,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s2hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s2hcp,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s3hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s3hcp,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s4hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s4hcp,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s5hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s5hcp,
+  CAST(SUBSTRING_INDEX(GROUP_CONCAT(CAST(s6hcp AS CHAR) ORDER BY result DESC,s6hcp DESC,s5hcp DESC,s4hcp DESC,s3hcp DESC,s2hcp DESC,s1hcp DESC), ',', 1) as SIGNED) as s6hcp
+from ResultsRaw r join EarlyBirdSquads s on r.time=s.time and r.day=s.day
 group by id
 order by
   result desc,

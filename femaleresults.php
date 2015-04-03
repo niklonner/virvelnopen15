@@ -12,7 +12,7 @@ require_once 'menu.php';
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-        <h1>Totala resultat</h1>
+        <h1>Resultat damer</h1>
       </div>
     </div>
     <div class="row">
@@ -45,19 +45,17 @@ require_once 'footer.php';
 $i=1;
 $squads_by_id = getNumberOfPlayedSquadsPerPlayer();
 $results_by_id = getRawResultsSortedByPlayer();
-foreach (getCompleteResults() as $result) {
-  if ($i==17) {
-    //draw separator
-    echo "$('#results').append('<div style=\"background-color:red\">&nbsp;</div>');";
-  }
+foreach (getFemaleResults() as $result) {
   $numsquads = $squads_by_id[$result[id]];
   $reentry = $numsquads == 1 ? "" : ($numsquads==2 ? " (R)" : " (R2)");
   $femalestring = $result[isfemale] ? " <span style=\"color:red\">(D)</span>" : "";
   $juniorstring = $result[isjunior] ? " <span style=\"color:green\">(J)</span>" : "";
-  $finalsstring = $i>=17 && $result[infinals] ?
-    ($result[way]=="junior" ? "<span style=\"color:green\">Bästa junior</span>" : 
+  $finalsstring = $result[infinals] ?
+    ($result[way]=="junior" ? "<span style=\"color:#555555\">Bästa junior</span>" : 
       ($result[way]=="female" ? "<span style=\"color:red\">Bästa dam</span>" : 
-        ($result[way]=="earlybird" ? "<span style=\"color:#ff9530\">Early bird</span>" : "")
+        ($result[way]=="earlybird" ? "<span style=\"color:#555555\">Early bird</span>" : 
+          ($result[way]=="ordinary" ? "<span style=\"color:#555555\">Ordinarie</span>" : "")
+        )
       )
     ) : "";
   $outer_text = <<<EOT
@@ -83,7 +81,7 @@ EOT;
     </tr>
 EOT;
   }
-  $color = $i%2 == 0 ? "#FFFFFF" : "#EEEEFA";
+  $color = $result[infinals] && $result[way]!="female" ? "#AAAAAA" : ($i%2 == 0 ? "#FFFFFF" : "#EEEEFA");
   echo <<<EOT
   $('#results').append(build_expand_button('$outer_text','$inner_text','$color'));
 EOT;
@@ -94,4 +92,6 @@ EOT;
 </script>
 </body>
 </html>
+
+
 

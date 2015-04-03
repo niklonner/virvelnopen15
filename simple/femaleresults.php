@@ -6,7 +6,7 @@ require_once '../db/dbfuncs.php';
 </head>
 <body>
     <a href="index.php">&lt;&lt; Tillbaka</a>
-  <h1>Totala resultat</h1>
+  <h1>Resultat damer</h1>
   <p style="font-weight:bold">
     (D) = dam<br/>
     (J) = junior
@@ -31,7 +31,7 @@ require_once '../db/dbfuncs.php';
 $squads_by_id = getNumberOfPlayedSquadsPerPlayer();
 $i = 1;
 $earlybirdcounter = 1;
-foreach (getCompleteResults() as $result) {
+foreach (getFemaleResults() as $result) {
   $squadnum = $squads_by_id[$result[id]];
   $reentry = $squadnum == 1 ? "" : ($squadnum == 2 ? " (R)" :" (R2)");
   $femalestring = $result[isfemale] ? " (D)" : "";
@@ -68,3 +68,5 @@ EOT;
 <?php
 require_once 'footer.php';
 ?>
+
+

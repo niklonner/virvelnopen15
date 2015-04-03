@@ -332,7 +332,6 @@ function getCompleteResults() {
   $i=1;
   $juniorspottaken = false;
   $femalespottaken = false;
-  $earlybirdspotstaken = 0;
   foreach($results as $index => $result) {
     //annotate
     $results[$index][isfemale] = $isfemale = substr($result[bitsid],0,1) == "K";
@@ -354,19 +353,85 @@ function getCompleteResults() {
       $results[$index][way] = "female";
       $femalespottaken = true;
     }
-    // if not, IS ANY RESULT one of six best eb's? TODO this counts all results as early bird results
-    else if ($earlybirdspotstaken < 6) {
-      $results[$index][infinals] = true;
-      $results[$index][way] = "earlybird";
-      $earlybirdspotstaken++;
-    }
     // no finals
     else {
       $results[$index][infinals] = false;
     }
     $i++;
   }
+  // check for early bird finalists
+  $earlybirdspotstaken = 0;
+  $earlybirdresults = getEarlyBirdResultsRaw();
+  foreach ($earlybirdresults as $index => $res) {
+    // already in finals?
+    foreach ($results as $jindex => $ordinaryres) {
+      if ($res[id] == $ordinaryres[id]) {
+        if (!$ordinaryres[infinals]) {
+          $results[$jindex][infinals] = true;
+          $results[$jindex][way] = "earlybird";
+          $earlybirdspotstaken++;
+        }
+        break;
+      }
+      if ($earlybirdspotstaken >= 6) {
+        break;
+      }
+    }
+  }
   return $results;
+}
+
+function getEarlyBirdResultsRaw() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT * FROM EarlyBirdResults ORDER BY   result desc,  LEAST(300,s6+hcp) desc, LEAST(300,s5+hcp) desc,  LEAST(300,s4+hcp) desc,  LEAST(300,s3+hcp) desc, LEAST(300,s2+hcp) desc,  LEAST(300,s1+hcp) desc;");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  return $res;
+}
+
+function getEarlyBirdResults() {
+  $results = getEarlyBirdResultsRaw();
+  $completeresults = getCompleteResults();
+  // add info from completeresults
+  foreach ($results as $index => $r) {
+    $playerindex = getPlayerIndexInCompleteResults($r[id]);
+    $results[$index][isfemale] = $completeresults[$playerindex][isfemale];
+    $results[$index][isjunior] = $completeresults[$playerindex][isjunior];
+    $results[$index][infinals] = $completeresults[$playerindex][infinals];
+    $results[$index][way] = $completeresults[$playerindex][way];
+  }
+  return $results;
+}
+
+function getFemaleResults() {
+  $results = getCompleteResults();
+  foreach ($results as $index => $r) {
+    if (!$r[isfemale]) {
+      unset($results[$index]);
+    }
+  }
+  return $results;
+}
+
+function getJuniorResults() {
+  $results = getCompleteResults();
+  foreach ($results as $index => $r) {
+    if (!$r[isjunior]) {
+      unset($results[$index]);
+    }
+  }
+  return $results;
+}
+
+function getPlayerIndexInCompleteResults($id) {
+  foreach (getCompleteResults() as $i => $res) {
+    if ($res[id] == $id) {
+      return $i;
+    }
+  }
 }
 
 function getBitsReportStep2() {
@@ -417,7 +482,7 @@ function getBitsReport() {
   return $res;
 }
 
-function getEarlyBirdResults() {
+/*function getEarlyBirdResults() {
   $dbh = openDB();
   $stmt = $dbh->prepare("SELECT *,o.id as id FROM EarlyBirdResults o LEFT OUTER JOIN AllFinalists a ON o.id = a.id");
   $stmt->execute();
@@ -427,7 +492,7 @@ function getEarlyBirdResults() {
   }
   closeDB();
   return $res;
-}
+}*/
 
 function getTurbo5Results() {
   $dbh = openDB();
