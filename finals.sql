@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS FinalStep3Matches (
 ); 
 
 create or replace view Step1Results as
-select f.id,
+select f2.id,
   coalesce(p.hcp, 0) as hcp,
   LEAST(300,coalesce(s1,0)+coalesce(hcp,0)*sign(coalesce(s1,0)))+
   LEAST(300,coalesce(s2,0)+coalesce(hcp,0)*sign(coalesce(s2,0)))+
@@ -52,7 +52,8 @@ select f.id,
   coalesce(s2,0) as s2,
   coalesce(s3,0) as s3,
   coalesce(f.tiebreaker,0) as tiebreaker
-from FinalStep1Results f join Players p on f.id=p.id
+from Finalists f2 left outer join FinalStep1Results f on f.id=f2.id left outer join Players p on f.id=p.id
+where f2.type <> 'top8'
 order by
   result,
   tiebreaker,
@@ -60,8 +61,30 @@ order by
   s2hcp,
   s1hcp;
 
+create or replace view Step2Players as
+(select s1.id from Step1Results s1 left join Step1Results s2
+on
+  s2.result > s1.result or
+    (s2.result = s1.result and 
+      (s2.tiebreaker > s1.tiebreaker or
+        (s2.tiebreaker = s1.tiebreaker and
+          (s2.s3hcp > s1.s3hcp or
+            (s2.s3hcp = s1.s3hcp and
+              (s2.s2hcp > s1.s2hcp or
+                (s2.s2hcp = s1.s2hcp and s2.s1hcp > s1.s1hcp)
+              )
+            )
+          )
+        )
+      )
+    )
+group by s1.id
+having count(s2.id)+1 < 9)
+union
+(select id from Finalists where type='top8');
+
 create or replace view Step2Results as
-select f.id,
+select s.id,
   coalesce(p.hcp, 0) as hcp,
   LEAST(300,coalesce(s1,0)+coalesce(hcp,0)*sign(coalesce(s1,0)))+
   LEAST(300,coalesce(s2,0)+coalesce(hcp,0)*sign(coalesce(s2,0)))+
@@ -74,7 +97,7 @@ select f.id,
   coalesce(s2,0) as s2,
   coalesce(s3,0) as s3,
   coalesce(f.tiebreaker,0) as tiebreaker
-from FinalStep2Results f join Players p on f.id=p.id
+from Step2Players s left outer join FinalStep2Results f on s.id=f.id left outer join Players p on s.id=p.id
 order by
   result,
   tiebreaker,
@@ -83,7 +106,7 @@ order by
   s1hcp;
 
 create or replace view Step3Seedings as
-(select s2.id, count(s2.id)+1 as seed from Step2Results s1 left join Step2Results s2
+(select s1.id, count(s2.id)+1 as seed from Step2Results s1 left join Step2Results s2
 on
   s2.result > s1.result or
     (s2.result = s1.result and 
@@ -192,12 +215,11 @@ select
   least(sign(coalesce(f5.res,0))*(coalesce(f5.res,0)+coalesce(p.hcp,0)),300) +
   least(sign(coalesce(f6.res,0))*(coalesce(f6.res,0)+coalesce(p.hcp,0)),300) +
   least(sign(coalesce(f7.res,0))*(coalesce(f7.res,0)+coalesce(p.hcp,0)),300) +
-  s2w.wins * 20 + s2w.ties * 10 as result,
+  s2w.wins * 30 + s2w.ties * 15 as result,
   s2w.wins,
   s2w.ties,
   s2w.losses,
-  s2w.wins * 20 + s2w.ties * 10 as bonus,
-  coalesce(s2b.tiebreaker,0) as tiebreaker
+  s2w.wins * 30 + s2w.ties * 15 as bonus
 from 
   Step3Wins s2w
   join Players p on s2w.id = p.id
@@ -208,4 +230,40 @@ from
   left join FinalStep3AResults f5 on s2w.id=f5.id and f5.gamenum=5
   left join FinalStep3AResults f6 on s2w.id=f6.id and f6.gamenum=6
   left join FinalStep3AResults f7 on s2w.id=f7.id and f7.gamenum=7;
+
+INSERT INTO `FinalStep3Matches` (`seed1`, `seed2`, `gamenum`, `lane`) VALUES
+(6, 3, 1, 1),
+(2, 7, 1, 2),
+(1, 4, 1, 3),
+(5, 8, 1, 4),
+
+(8, 1, 2, 1),
+(4, 5, 2, 2),
+(7, 6, 2, 3),
+(3, 2, 2, 4),
+
+(5, 7, 3, 1),
+(1, 3, 3, 2),
+(2, 8, 3, 3),
+(6, 4, 3, 4),
+
+(4, 2, 4, 1),
+(8, 6, 4, 2),
+(3, 5, 4, 3),
+(7, 1, 4, 4),
+
+(6, 1, 5, 1),
+(2, 5, 5, 2),
+(4, 7, 5, 3),
+(8, 3, 5, 4),
+
+(7, 8, 6, 1),
+(3, 4, 6, 2),
+(1, 2, 6, 3),
+(5, 6, 6, 4),
+
+(5, 1, 7, 1),
+(6, 2, 7, 2),
+(8, 4, 7, 3),
+(7, 3, 7, 4);
 

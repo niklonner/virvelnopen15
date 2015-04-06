@@ -533,7 +533,7 @@ function getAllResults() {
 
 function getStep1Results() {
   $dbh = openDB();
-  $stmt = $dbh->prepare("SELECT s.*, p.lastname, p.club FROM Step1Results s join Players p on p.id=s.id order by s.result desc, s.tiebreaker desc, s.s6hcp desc, s.s5hcp desc, s.s4hcp desc, s.s3hcp desc, s.s2hcp desc, s.s1hcp desc");
+  $stmt = $dbh->prepare("SELECT s.*, p.lastname, p.club FROM Step1Results s join Players p on p.id=s.id order by s.result desc, s.tiebreaker desc, s.s3hcp desc, s.s2hcp desc, s.s1hcp desc");
   $stmt->execute();
   $res = array();
   while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -545,32 +545,54 @@ function getStep1Results() {
 
 function registerStep1Result($id,$games,$tiebreaker) {
     $dbh = openDB();
-    $stmt = $dbh->prepare("UPDATE FinalStep1Results SET s1 = :s1 , s2 = :s2 , s3 = :s3 , s4 = :s4 , s5 = :s5 , s6 = :s6 , tiebreaker = :tiebreaker WHERE id = :id");
+    $stmt = $dbh->prepare("INSERT INTO FinalStep1Results(id,s1,s2,s3,tiebreaker) VALUES (:id,:s1,:s2,:s3,:tiebreaker) ON DUPLICATE KEY UPDATE s1 = :s1 , s2 = :s2 , s3 = :s3, tiebreaker = :tiebreaker");
     $stmt->bindParam("id",$id);
     $stmt->bindParam("s1",$games[0]);
     $stmt->bindParam("s2",$games[1]);
     $stmt->bindParam("s3",$games[2]);
-    $stmt->bindParam("s4",$games[3]);
-    $stmt->bindParam("s5",$games[4]);
-    $stmt->bindParam("s6",$games[5]);
     $stmt->bindParam("tiebreaker",$tiebreaker);
     $res = $stmt->execute();
     closeDB();
     return $res;
 }
 
-function getNumberOfStep2Games() {
+function getStep2Results() {
   $dbh = openDB();
-  $stmt = $dbh->prepare("SELECT MAX(gamenum) from FinalStep2Matches");
+  $stmt = $dbh->prepare("SELECT s.*, p.lastname, p.club FROM Step2Results s join Players p on p.id=s.id order by s.result desc, s.tiebreaker desc, s.s3hcp desc, s.s2hcp desc, s.s1hcp desc");
+  $stmt->execute();
+  $res = array();
+  while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $res[] = $tmp;
+  }
+  closeDB();
+  return $res;
+}
+
+function registerStep2Result($id,$games,$tiebreaker) {
+    $dbh = openDB();
+    $stmt = $dbh->prepare("INSERT INTO FinalStep2Results(id,s1,s2,s3,tiebreaker) VALUES (:id,:s1,:s2,:s3,:tiebreaker) ON DUPLICATE KEY UPDATE s1 = :s1 , s2 = :s2 , s3 = :s3, tiebreaker = :tiebreaker");
+    $stmt->bindParam("id",$id);
+    $stmt->bindParam("s1",$games[0]);
+    $stmt->bindParam("s2",$games[1]);
+    $stmt->bindParam("s3",$games[2]);
+    $stmt->bindParam("tiebreaker",$tiebreaker);
+    $res = $stmt->execute();
+    closeDB();
+    return $res;
+}
+
+function getNumberOfStep3Games() {
+  $dbh = openDB();
+  $stmt = $dbh->prepare("SELECT MAX(gamenum) from FinalStep3Matches");
   $stmt->execute();
   $res = $stmt->fetch();
   closeDB();
   return $res[0];
 }
 
-function getStep2Matches() {
+function getStep3Matches() {
   $dbh = openDB();
-  $stmt = $dbh->prepare("SELECT * FROM Step2Matchups ORDER BY gamenum ASC, lane ASC");
+  $stmt = $dbh->prepare("SELECT * FROM Step3Matchups ORDER BY gamenum ASC, lane ASC");
   $stmt->execute();
   $res = array();
   while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -580,9 +602,9 @@ function getStep2Matches() {
   return $res;
 }
 
-function getStep2Players() {
+function getStep3Players() {
   $dbh = openDB();
-  $stmt = $dbh->prepare("SELECT id FROM Step2Seedings");
+  $stmt = $dbh->prepare("SELECT id FROM Step3Seedings");
   $stmt->execute();
   $res = array();
   while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -592,9 +614,9 @@ function getStep2Players() {
   return $res;
 }
 
-function registerStep2AResult($id, $gamenum, $result) {
+function registerStep3Result($id, $gamenum, $result) {
     $dbh = openDB();
-    $stmt = $dbh->prepare("INSERT INTO FinalStep2AResults (id,gamenum,res) VALUES (:id, :gamenum, :result) ON DUPLICATE KEY UPDATE res=VALUES(res)");
+    $stmt = $dbh->prepare("INSERT INTO FinalStep3AResults (id,gamenum,res) VALUES (:id, :gamenum, :result) ON DUPLICATE KEY UPDATE res=VALUES(res)");
     $stmt->bindParam("id",$id);
     $stmt->bindParam("gamenum",$gamenum);
     $stmt->bindParam("result",$result);
@@ -626,9 +648,9 @@ function getStep2BResults() {
   return $res;
 }
 
-function getStep2Results() {
+function getStep3Results() {
   $dbh = openDB();
-  $stmt = $dbh->prepare("select s.*,p.lastname, p.club from Step2Results s join Players p on p.id=s.id order by result DESC, tiebreaker DESC, s8hcp DESC, s7hcp desc, s6hcp desc, s5hcp desc, s4hcp desc, s3hcp desc, s2hcp desc,s1hcp desc");
+  $stmt = $dbh->prepare("select s.*,p.lastname, p.club from Step3Results s join Players p on p.id=s.id order by result DESC, s7hcp desc, s6hcp desc, s5hcp desc, s4hcp desc, s3hcp desc, s2hcp desc,s1hcp desc");
   $stmt->execute();
   $res = array();
   while($tmp = $stmt->fetch(PDO::FETCH_ASSOC)) {
